@@ -2,9 +2,7 @@
 clear all
 close all
 
-% load('C:\BoxSync\Dropbox\VICE\Darius\PropErrorClamp\Analyze\PropErrorClamp_trials.mat');
-load('C:\BoxSync\Dropbox\VICE\Darius\PropErrorClamp\Analyze\PropErrorClamp_withPilot_trials.mat');
-% load('/Users/dariuscognac/Dropbox/VICE/Darius/PropErrorClamp/Analyze/PropErrorClamp_trials.mat');
+load('pre-processed_data\PropErrorClamp_trials.mat');
 
 % Pilot and real data
 % K_subj_names = {'PropEC_622C__J10','PropEC_622C__J9', 'PropEC_622A__J8_a', 'PropEC_622C__J7_b',...
