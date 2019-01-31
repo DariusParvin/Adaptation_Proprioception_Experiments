@@ -14,31 +14,29 @@ subj = {'PropEC_622C__J9','PropEC_622A__ j5_a',... % First two are RAs that were
         'PropEC_905C__J13_a', 'PropEC_905A__J14', 'PropEC_905C__J15_a', 'PropEC_905A__J16_a',...
         'PropEC_905C__J17_a', 'PropEC_905A__J18_a', 'PropEC_905C__J19_c','PropEC_905A__J20',...
         'PropEC_905C__J21_a','PropEC_905A__J22_a','PropEC_905C__J23','PropEC_905A__J24_a',...
-        'PropEC_905C__J25_a','PropEC_905A__J18_b'};
-
-% % Usable pilot subjects
-%     'PropEC_905A__J18_b', 'PropEC_622A__ j5_a', 'PropEC_622C__J9'
+        'PropEC_905C__J25_a','PropEC_905A__J18_b','PropEC_905A__J26_a', 'PropEC_905C__J27_a',...
+        'PropEC_905C__J28_a','PropEC_905A__J29'};
     
 %%%%% Practise trials get removed later %%%%%
 trialbeforepractice = 180;
 startofclamp = 184;
 
 
-% % % %%% look for table. if it's there, we will append stuff. look to see how
-% % % %%% many subjects are in existing table. 
-% % % if (exist('PropRepClamp_trials.mat') & exist('PropRepClamp_movefile.mat')) == 1
-% % %     load('PropRepClamp_trials.mat'); load('PropRepClamp_movefile.mat')
-% % %     T=T;
-% % %     M=M;
-% % %     num_tested_subj=numel(unique(T.SN));
-% % %     if num_tested_subj==length(subj)
-% % %         return
-% % %     end
-% % % else
-% % %     T=[];
-% % %     M=[];
-% % %     num_tested_subj=0;
-% % % end
+%%% look for table. if it's there, we will append stuff. look to see how
+%%% many subjects are in existing table. 
+if (exist('pre-processed_data\PropErrorClamp_trials.mat') & exist('pre-processed_data\PropErrorClamp_movefile.mat')) == 1
+    load('pre-processed_data\PropErrorClamp_trials.mat'); load('pre-processed_data\PropErrorClamp_movefile.mat')
+    T=T;
+    M=M;
+    num_tested_subj=numel(unique(T.SN));
+    if num_tested_subj==length(subj)
+        return
+    end
+else
+    T=[];
+    M=[];
+    num_tested_subj=0;
+end
 
 T=[];
 M=[];
@@ -55,9 +53,7 @@ NaNmask_ = @(x) (double(x)./double(x).*double(x));
 Outlier_ = @(x,Niqr) (abs(x-nanmean(nanmedian(x))) > Niqr*nanmean(iqr(x)));
 
 % loop through all subjects
-% % % for s = num_tested_subj+1:length(subj)
-for s = 1:length(subj)
-% for s = 1
+for s = num_tested_subj+1:length(subj)
         
     s
     subj{s}
@@ -342,8 +338,8 @@ mean_elapsed_experiment_time = mean(elapsed_times)/60;
 minutes = floor(mean_elapsed_experiment_time)
 seconds = 60*(mean_elapsed_experiment_time  - floor(mean_elapsed_experiment_time) )
 
-cd(analyzeDir)
-save('PropErrorClamp_trials.mat','T');
-save('PropErrorClamp_movefile.mat','M');
+
+save('pre-processed_data\PropErrorClamp_trials.mat','T');
+save('pre-processed_data\PropErrorClamp_movefile.mat','M');
 toc
 
