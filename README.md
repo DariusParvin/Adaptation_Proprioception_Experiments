@@ -2,7 +2,7 @@
 
 Analysis scripts for reaching experiments looking at adaptation and proprioception.
 
-Experiment 1 - Two day experiment. Both days have the same schedule. Visuomotor rotation introduced gradually up to 30 deg.
+Experiment 1 - Two day experiment. Same schedule on both days. Visuomotor rotation introduced gradually up to 30 deg
 <br />Experiment 2 - One day experiment. Error Clamp experiment 
 
 Raw Data can be found here
