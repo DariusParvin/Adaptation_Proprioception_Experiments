@@ -284,7 +284,7 @@ for s = num_tested_subj+1:length(subj)
         HL_angle(i,1) = atan2d( D.HL_Y(i,1), D.HL_X(i,1) ); % Aug 28 2018: "-80" is so that the angle is worked out relative to the actual start position
         FC_angle(i,1) = atan2d( D.FC_Y(i,1), D.FC_X(i,1) ); % Aug 28 2018: "-80" is so that the angle is worked out relative to the actual start position
         
-        prop_theta(i,1) = atan2d(sind(HL_angle(i)-FC_angle(i)), cosd(HL_angle(i)-FC_angle(i)));
+        prop_theta(i,1) = atan2d(sind(FC_angle(i)-HL_angle(i)), cosd(FC_angle(i)-HL_angle(i)));
     end
     D.prop_theta = prop_theta;
     
