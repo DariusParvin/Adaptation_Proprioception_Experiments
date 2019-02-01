@@ -2,7 +2,7 @@
 clear all; close all; clc
 addpath(genpath(pwd))
 
-%     load('PropErrorClamp_trials.mat')    
+%     load('PropErrorClamp_trials.mat')
 if ispc
     load('pre-processed_data\PropErrorClamp_trials.mat');
 elseif ismac
@@ -11,42 +11,39 @@ end
 
 % % Real data only
 K_subj_names = {'PropEC_622C__J9','PropEC_622A__ j5_a',... % First two are RAs that were usable data
-        'PropEC_905C_1_J1', 'PropEC_905A_1_J2_a', 'PropEC_905C__J3_a', 'PropEC_905A__J4_a',...
-        'PropEC_905C__J5_a', 'PropEC_905A__J6_a', 'PropEC_905C__J7_a', 'PropEC_905A__J8_a',...
-        'PropEC_905C__J9_a','PropEC_905A__J10_a', 'PropEC_905C__J11_a','PropEC_905A__J12_b',...
-        'PropEC_905C__J13_a', 'PropEC_905A__J14', 'PropEC_905C__J15_a', 'PropEC_905A__J16_a',...
-        'PropEC_905C__J17_a', 'PropEC_905A__J18_a', 'PropEC_905C__J19_c','PropEC_905A__J20',...
-        'PropEC_905C__J21_a','PropEC_905A__J22_a','PropEC_905C__J23','PropEC_905A__J24_a',...
-        'PropEC_905C__J25_a','PropEC_905A__J18_b','PropEC_905A__J26_a', 'PropEC_905C__J27_a',...
-        'PropEC_905C__J28_a','PropEC_905A__J29'};
-    
+    'PropEC_905C_1_J1', 'PropEC_905A_1_J2_a', 'PropEC_905C__J3_a', 'PropEC_905A__J4_a',...
+    'PropEC_905C__J5_a', 'PropEC_905A__J6_a', 'PropEC_905C__J7_a', 'PropEC_905A__J8_a',...
+    'PropEC_905C__J9_a','PropEC_905A__J10_a', 'PropEC_905C__J11_a','PropEC_905A__J12_b',...
+    'PropEC_905C__J13_a', 'PropEC_905A__J14', 'PropEC_905C__J15_a', 'PropEC_905A__J16_a',...
+    'PropEC_905C__J17_a', 'PropEC_905A__J18_a', 'PropEC_905C__J19_c','PropEC_905A__J20',...
+    'PropEC_905C__J21_a','PropEC_905A__J22_a','PropEC_905C__J23','PropEC_905A__J24_a',...
+    'PropEC_905C__J25_a','PropEC_905A__J18_b','PropEC_905A__J26_a', 'PropEC_905C__J27_a',...
+    'PropEC_905C__J28_a','PropEC_905A__J29'};
+
 
 % Check that # of subject names == # of subjects in datafile
 if length(K_subj_names) ~= length(unique(T.SN))
     error('please_copy_in_subject_names')
 end
 
+T.hand = T.hand_theta;
+remove_vars = {'hand_theta','hand_theta_maxv','hand_theta_maxradv','handMaxRadExt','hand_theta_50'};
+T(:, T.Properties.VariableNames(remove_vars)) = [];
 
-hand_vars = {'hand_theta','hand_theta_maxv','hand_theta_maxradv','handMaxRadExt','hand_theta_50'};
 prop_vars = {'FC_bias_X', 'FC_bias_Y', 'prop_theta'};
-
-
 
 % T1 REMOVE OUTLIERS
 T1 = T;
-outlier_idx = abs(T1.hand_theta) > 90 ; % Remove trials greater than x degrees
+outlier_idx = abs(T1.hand) > 90 ; % Remove trials greater than x degrees
 fprintf('Outlier trials removed: %d \n' , [sum(outlier_idx)])
-for vi = 1:length(hand_vars) % loop over hand angle columns
-    T1.(hand_vars{vi})(outlier_idx, 1) = nan; % Flip trials .*(-1)
-end
-    
-    
+T1.hand(outlier_idx, 1) = nan; % Flip trials .*(-1)
+
+
 % T2 FLIP CCW SUBJECTS TO CW
 T2 = T1;
 flip_idx = T2.rot_cond > 0; % CW condition index   % Change to 'rot_cond' eventually
-for vi = 1:length(hand_vars) % loop over hand angle columns
-    T2.(hand_vars{vi})(flip_idx, 1) = T1.(hand_vars{vi})(flip_idx, 1).*(-1); % Flip trials .*(-1)
-end
+T2.hand(flip_idx, 1) = T1.hand(flip_idx, 1).*(-1); % Flip trials .*(-1)
+
 
 % flip proprioceptive related variables
 T2.prop_theta(flip_idx) = T2.prop_theta(flip_idx).*(-1);
@@ -60,22 +57,20 @@ T2.PropTestAng(flip_idx) = T2.PropTestAng(flip_idx).*(-1) + 180;
 
 % T3 BASELINE SUBTRACTION
 T3 = T2;
-baseCN = 9:12; %%%% Reaching Baseline cycles to subtract 
+baseCN = 9:12; %%%% Reaching Baseline cycles to subtract
 base_idx = T3.CN >= min(baseCN) & T3.CN <= max(baseCN); % index of baseline cycles
 base_mean = varfun(@nanmean,T2(base_idx ,:),'GroupingVariables',{'SN','ti'},'OutputFormat','table');
 
 for SN = unique(T3.SN)';
     for ti = unique(T3.ti(~isnan(T3.ti)))'; % subtract baseline for each target
-        for vi = 1:length(hand_vars) % loop over hand angle columns
-            trial_idx = (T3.SN==SN & T3.ti==ti);
-            base_idx = (base_mean.SN==SN & base_mean.ti==ti);
-            T3.(hand_vars{vi})(trial_idx) = T2.(hand_vars{vi})(trial_idx) - base_mean.(strcat('nanmean_',hand_vars{vi}))(base_idx);
-        end
+        trial_idx = (T3.SN==SN & T3.ti==ti);
+        base_idx = (base_mean.SN==SN & base_mean.ti==ti);
+        T3.hand(trial_idx) = T2.hand(trial_idx) - base_mean.nanmean_hand(base_idx);
     end
 end
 
-prop_baseCN = 13:20; %%%% Proprioceptive Baseline cycles to subtract 
-% prop_baseCN = 17:20; %%%% Proprioceptive Baseline cycles to subtract 
+% prop_baseCN = 13:20; %%%% Proprioceptive Baseline cycles to subtract
+prop_baseCN = 17:20; %%%% Proprioceptive Baseline cycles to subtract
 prop_base_idx = T3.CN >= min(prop_baseCN) & T3.CN <= max(prop_baseCN); % index of baseline cycles
 prop_base_mean = varfun(@nanmean,T2(prop_base_idx ,:),'GroupingVariables',{'SN','PropTestAng'},'OutputFormat','table');
 
@@ -107,7 +102,7 @@ E.PB(isnan(E.PB)) = 0; % Cheap hack so that the split function works
 subjs = unique(E.SN);
 
 for i = 25:length(subjs)
-% for i = 1
+    % for i = 1
     
     figure('units','centimeters','pos',[1 5 20 20]);hold on;
     subplot(2,2,1:2); hold on;
@@ -115,7 +110,7 @@ for i = 25:length(subjs)
     title(str);
     % Hand theta
     x1 = E.TN(E.SN == subjs(i));
-    y1 = E.hand_theta( E.SN == subjs(i));
+    y1 = E.hand( E.SN == subjs(i));
     scatter(x1,y1,10,'filled');
     % Proprioceptive estimate (as an angle relative to tgt)
     x2 = E.TN(E.SN == subjs(i));
@@ -166,7 +161,6 @@ end
 clearvars -except T* K*
 E = T3;
 % E = E(E.rot_cond>0, :);
-E.hand = E.hand_theta;
 subj = unique(E.SN);
 
 for si = 1:length(subj)
@@ -177,10 +171,10 @@ for si = 1:length(subj)
     % Adaptation dependent variables
     earlyLearning(si,1) = nanmean( E.hand( E.SN==subj(si) & E.CN >= (21 + 1)  & E.CN <= (21 + 4) ) ); % clamp cycles 2 - 4 (smaller clamp cycles than usual because of generalization)
     asymptote(si,1) = nanmean( E.hand( E.SN==subj(si) & E.CN >= 73  & E.CN <= 82 ) ); % last 10 clamp cycles
-
+    
     % Proprioceptive shift
     shift_idx = E.SN==subj(si) & E.PB > 2 ;
-    base_idx = E.SN==subj(si) & E.PB == 2 ; 
+    base_idx = E.SN==subj(si) & E.PB == 2 ;
     propShiftX(si,1) = nanmean(E.FC_bias_X(shift_idx)) - nanmean(E.FC_bias_X(base_idx));
     
     propShiftTheta(si,1) = nanmean(E.prop_theta(shift_idx)) - nanmean(E.prop_theta(base_idx));
@@ -200,31 +194,24 @@ subjCond = table(SN, rotCond);
 summaryBar = [summaryMatrix subjCond];
 
 %% Plot Group Hand angle and Proprioceptive Estimate
-% clearvars -except T* K*
-
 E = T3;
-E.hand = E.hand_theta;
 
 figure; hold on;
 dpPropErrorClamp_plotGroup(E, 'hand', 'RB', [0 774 -15 35], 'b')
 dpPropErrorClamp_plotGroup(E, 'prop_theta', 'PB', [0 774 -15 35], 'r')
 
-% Fig labels
 title('Hand and proprioceptive angle');
-xlabel('Trial'); 
-ylabel('Hand Angle/Proprioceptive estimate (º)')
+xlabel('Trial'); ylabel('Hand Angle/Proprioceptive estimate (º)')
 
-%% Plot Group average ST/RT/MT etc 
+%% Plot Group average ST/RT/MT etc
 % clearvars -except T* K*
 E = T3;
-E.hand = E.hand_theta;
 
 figure; hold on;
 dpPropErrorClamp_plotGroup(E, 'ST', 'RB', [0 774 0.3 6], 'b')
 dpPropErrorClamp_plotGroup(E, 'ST', 'PB', [0 774 0 7], 'r')
 
 title('ST'); xlabel('Trial'); ylabel('RT (sec)')
-
 
 %% CORRELATION MATRIX
 figure
@@ -241,44 +228,13 @@ for vi = 1:length(varnames) % loop over hand angle columns
 end
 
 for sigi = 1:length(almostSigPlots);
-S(almostSigPlots(sigi)).Color = [1 0.5 0];
+    S(almostSigPlots(sigi)).Color = [1 0.5 0];
 end
 
 for sigi = 1:length(sigPlots);
-S(sigPlots(sigi)).Color = 'r';
+    S(sigPlots(sigi)).Color = 'r';
 end
 
-% str3 = sprintf('Janet matrix', si);
-% cd('C:\BoxSync\Dropbox\!!temp_figs\')
-% print(str3,'-painters','-djpeg')
-% savefig(str3)
-%%
-figure; hold on
-
-dp_xy_plot
-
-x = summaryMatrix.dispAll(summaryBar.rotCond == 15);
-y = summaryMatrix.asymptote(summaryBar.rotCond == 15);
-plot(x,y,'.r','markersize',20)
-
-x = summaryMatrix.dispAll(summaryBar.rotCond == -15);
-y = summaryMatrix.asymptote(summaryBar.rotCond == -15);
-plot(x,y,'.b','markersize',20)
-
-[rho,pval] = corrcoef(summaryMatrix.dispAll,summaryMatrix.asymptote)
-r = rho(1,2)
-p = pval(1,2)
-
-xlabel('Dispersion (mm)')
-ylabel('Asymptote (deg)')
-
-str = sprintf('r = %.2f, p = %.2f', r, p)
-title(str)
-
-% str3 = sprintf('Janet with pilot disp vs asym');
-% cd('C:\BoxSync\Dropbox\!!temp_figs\')
-% print(str3,'-painters','-djpeg')
-% savefig(str3)
 %%
 plot_correlation(summaryMatrix, 'dispAll', 'asymptote')
 
@@ -291,12 +247,12 @@ figure
 barVarNames = summaryBar.Properties.VariableNames;
 xpos = [1 2 4 5 7 8 10 11 13 14 16 17];
 for vi = 1:6
-    dataPoints = summaryBar.(barVarNames{vi})(summaryBar.rotCond < 0);    
+    dataPoints = summaryBar.(barVarNames{vi})(summaryBar.rotCond < 0);
     dpPlotBar(xpos(vi*2), dataPoints );
-
-    dataPoints = summaryBar.(barVarNames{vi})(summaryBar.rotCond > 0);    
-    dpPlotBar(xpos(vi*2 - 1), dataPoints );    
-end 
+    
+    dataPoints = summaryBar.(barVarNames{vi})(summaryBar.rotCond > 0);
+    dpPlotBar(xpos(vi*2 - 1), dataPoints );
+end
 
 % Aesthetics
 % xticks = [1.5 4.5]; yticks = [-10:5:25];
@@ -316,9 +272,9 @@ figure
 % Plot bars
 barVarNames = summaryBar.Properties.VariableNames;
 for vi = 1:6
-    dataPoints = summaryBar.(barVarNames{vi});    
-    dpPlotBar(vi, dataPoints ); 
-end 
+    dataPoints = summaryBar.(barVarNames{vi});
+    dpPlotBar(vi, dataPoints );
+end
 
 xticks = [1:6];
 set(gca,'xTick',xticks,'xticklabel',barVarNames,'ylim',[-30 60],'xticklabelrotation',45)
@@ -327,12 +283,5 @@ set(gca,'xTick',xticks,'xticklabel',barVarNames,'ylim',[-30 60],'xticklabelrotat
 % cd('C:\BoxSync\Dropbox\!!temp_figs\')
 % print(str3,'-painters','-djpeg')
 % savefig(str3)
-
-
-
-
-
-
-
 
 

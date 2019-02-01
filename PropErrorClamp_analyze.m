@@ -1,5 +1,5 @@
 %% Load data
-clear all; close all; clc
+clear all;  clc
 addpath(genpath(pwd))
 
 %     load('PropErrorClamp_trials.mat')
@@ -26,27 +26,24 @@ if length(K_subj_names) ~= length(unique(T.SN))
     error('please_copy_in_subject_names')
 end
 
+T.hand = T.hand_theta;
+remove_vars = {'hand_theta','hand_theta_maxv','hand_theta_maxradv','handMaxRadExt','hand_theta_50'};
+T(:, T.Properties.VariableNames(remove_vars)) = [];
 
-hand_vars = {'hand_theta','hand_theta_maxv','hand_theta_maxradv','handMaxRadExt','hand_theta_50'};
 prop_vars = {'FC_bias_X', 'FC_bias_Y', 'prop_theta'};
-
-
 
 % T1 REMOVE OUTLIERS
 T1 = T;
-outlier_idx = abs(T1.hand_theta) > 90 ; % Remove trials greater than x degrees
+outlier_idx = abs(T1.hand) > 90 ; % Remove trials greater than x degrees
 fprintf('Outlier trials removed: %d \n' , [sum(outlier_idx)])
-for vi = 1:length(hand_vars) % loop over hand angle columns
-    T1.(hand_vars{vi})(outlier_idx, 1) = nan; % Flip trials .*(-1)
-end
+T1.hand(outlier_idx, 1) = nan; % Flip trials .*(-1)
 
 
 % T2 FLIP CCW SUBJECTS TO CW
 T2 = T1;
 flip_idx = T2.rot_cond > 0; % CW condition index   % Change to 'rot_cond' eventually
-for vi = 1:length(hand_vars) % loop over hand angle columns
-    T2.(hand_vars{vi})(flip_idx, 1) = T1.(hand_vars{vi})(flip_idx, 1).*(-1); % Flip trials .*(-1)
-end
+T2.hand(flip_idx, 1) = T1.hand(flip_idx, 1).*(-1); % Flip trials .*(-1)
+
 
 % flip proprioceptive related variables
 T2.prop_theta(flip_idx) = T2.prop_theta(flip_idx).*(-1);
@@ -66,16 +63,14 @@ base_mean = varfun(@nanmean,T2(base_idx ,:),'GroupingVariables',{'SN','ti'},'Out
 
 for SN = unique(T3.SN)';
     for ti = unique(T3.ti(~isnan(T3.ti)))'; % subtract baseline for each target
-        for vi = 1:length(hand_vars) % loop over hand angle columns
-            trial_idx = (T3.SN==SN & T3.ti==ti);
-            base_idx = (base_mean.SN==SN & base_mean.ti==ti);
-            T3.(hand_vars{vi})(trial_idx) = T2.(hand_vars{vi})(trial_idx) - base_mean.(strcat('nanmean_',hand_vars{vi}))(base_idx);
-        end
+        trial_idx = (T3.SN==SN & T3.ti==ti);
+        base_idx = (base_mean.SN==SN & base_mean.ti==ti);
+        T3.hand(trial_idx) = T2.hand(trial_idx) - base_mean.nanmean_hand(base_idx);
     end
 end
 
-prop_baseCN = 13:20; %%%% Proprioceptive Baseline cycles to subtract
-% prop_baseCN = 17:20; %%%% Proprioceptive Baseline cycles to subtract
+% prop_baseCN = 13:20; %%%% Proprioceptive Baseline cycles to subtract
+prop_baseCN = 17:20; %%%% Proprioceptive Baseline cycles to subtract
 prop_base_idx = T3.CN >= min(prop_baseCN) & T3.CN <= max(prop_baseCN); % index of baseline cycles
 prop_base_mean = varfun(@nanmean,T2(prop_base_idx ,:),'GroupingVariables',{'SN','PropTestAng'},'OutputFormat','table');
 
@@ -115,7 +110,7 @@ for i = 25:length(subjs)
     title(str);
     % Hand theta
     x1 = E.TN(E.SN == subjs(i));
-    y1 = E.hand_theta( E.SN == subjs(i));
+    y1 = E.hand( E.SN == subjs(i));
     scatter(x1,y1,10,'filled');
     % Proprioceptive estimate (as an angle relative to tgt)
     x2 = E.TN(E.SN == subjs(i));
@@ -166,7 +161,6 @@ end
 clearvars -except T* K*
 E = T3;
 % E = E(E.rot_cond>0, :);
-E.hand = E.hand_theta;
 subj = unique(E.SN);
 
 for si = 1:length(subj)
@@ -201,7 +195,6 @@ summaryBar = [summaryMatrix subjCond];
 
 %% Plot Group Hand angle and Proprioceptive Estimate
 E = T3;
-E.hand = E.hand_theta;
 
 figure; hold on;
 dpPropErrorClamp_plotGroup(E, 'hand', 'RB', [0 774 -15 35], 'b')
@@ -213,7 +206,6 @@ xlabel('Trial'); ylabel('Hand Angle/Proprioceptive estimate (º)')
 %% Plot Group average ST/RT/MT etc
 % clearvars -except T* K*
 E = T3;
-E.hand = E.hand_theta;
 
 figure; hold on;
 dpPropErrorClamp_plotGroup(E, 'ST', 'RB', [0 774 0.3 6], 'b')
@@ -243,33 +235,6 @@ for sigi = 1:length(sigPlots);
     S(sigPlots(sigi)).Color = 'r';
 end
 
-%%
-figure; hold on
-
-dp_xy_plot
-
-x = summaryMatrix.dispAll(summaryBar.rotCond == 15);
-y = summaryMatrix.asymptote(summaryBar.rotCond == 15);
-plot(x,y,'.r','markersize',20)
-
-x = summaryMatrix.dispAll(summaryBar.rotCond == -15);
-y = summaryMatrix.asymptote(summaryBar.rotCond == -15);
-plot(x,y,'.b','markersize',20)
-
-[rho,pval] = corrcoef(summaryMatrix.dispAll,summaryMatrix.asymptote)
-r = rho(1,2)
-p = pval(1,2)
-
-xlabel('Dispersion (mm)')
-ylabel('Asymptote (deg)')
-
-str = sprintf('r = %.2f, p = %.2f', r, p)
-title(str)
-
-% str3 = sprintf('Janet with pilot disp vs asym');
-% cd('C:\BoxSync\Dropbox\!!temp_figs\')
-% print(str3,'-painters','-djpeg')
-% savefig(str3)
 %%
 plot_correlation(summaryMatrix, 'dispAll', 'asymptote')
 
