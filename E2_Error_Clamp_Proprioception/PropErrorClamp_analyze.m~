@@ -94,15 +94,15 @@ K_lines_all_trials = [9.5 36.5 72.5 108.5 144.5 180.5 270.5 360.5 396.5 486.5 52
 
 % Figure lines for block divisions
 %% Every subject every trial
-clearvars -except T* K* fig*
+clearvars -except T* K*
 close all;
 E = T3;
 E.PB(isnan(E.PB)) = 0; % Cheap hack so that the split function works
 
 subjs = unique(E.SN);
 
-% for i = 25:length(subjs)
-for i = 29
+for i = 25:length(subjs)
+    % for i = 1
     
     figure('units','centimeters','pos',[1 5 20 20]);hold on;
     subplot(2,2,1:2); hold on;
@@ -157,11 +157,8 @@ for i = 29
     axis('square');
     xlabel('mm'); ylabel('mm')
 end
-
-% print(sprintf('%sE2egSubj_%s',figDir,date),'-painters','-dpdf')
-print(sprintf('%sE2egSubj_%s',figDir,date),'-painters','-djpeg')
 %% Subject summary table
-clearvars -except T* K* fig*
+clearvars -except T* K*
 E = T3;
 % E = E(E.rot_cond>0, :);
 subj = unique(E.SN);
@@ -199,27 +196,25 @@ summaryBar = [summaryMatrix subjCond];
 %% Plot Group Hand angle and Proprioceptive Estimate
 E = T3;
 
-figure; hold on; set(gcf,'units','centimeters','pos',[5 5 20 10]);
+figure; hold on;
 dpPropErrorClamp_plotGroup(E, 'hand', 'RB', [0 774 -15 35], 'b')
 dpPropErrorClamp_plotGroup(E, 'prop_theta', 'PB', [0 774 -15 35], 'r')
 
 title('Hand and proprioceptive angle');
 xlabel('Trial'); ylabel('Hand Angle/Proprioceptive estimate (º)')
 
-% print(sprintf('%E2_Group_Hand_%s',figDir,date),'-painters','-dpdf')
-print(sprintf('%sE2_Group_Hand_%s',figDir,date),'-painters','-djpeg')
 %% Plot Group average ST/RT/MT etc
-% % clearvars -except T* K*
-% E = T3;
-% 
-% figure; hold on;
-% dpPropErrorClamp_plotGroup(E, 'ST', 'RB', [0 774 0.3 6], 'b')
-% dpPropErrorClamp_plotGroup(E, 'ST', 'PB', [0 774 0 7], 'r')
-% 
-% title('ST'); xlabel('Trial'); ylabel('RT (sec)')
+% clearvars -except T* K*
+E = T3;
+
+figure; hold on;
+dpPropErrorClamp_plotGroup(E, 'ST', 'RB', [0 774 0.3 6], 'b')
+dpPropErrorClamp_plotGroup(E, 'ST', 'PB', [0 774 0 7], 'r')
+
+title('ST'); xlabel('Trial'); ylabel('RT (sec)')
 
 %% CORRELATION MATRIX
-figure; set(gcf,'units','centimeters','pos',[5 5 20 20]);
+figure
 [S,AX,BigAx,H,HAx] = plotmatrix(summaryMatrix{:,:});
 [rho,pval] = corrcoef(summaryMatrix{:,:})
 
@@ -240,42 +235,11 @@ for sigi = 1:length(sigPlots);
     S(sigPlots(sigi)).Color = 'r';
 end
 
-% print(sprintf('%E2_corr_Matrix_%s',figDir,date),'-painters','-dpdf')
-print(sprintf('%sE2_corr_Matrix_%s',figDir,date),'-painters','-djpeg')
-
-%% Plot specific correlation
+%%
 plot_correlation(summaryMatrix, 'dispAll', 'asymptote')
 
-set(gcf,'units','centimeters','pos',[5 5 15 15]);
+% plot_correlation(summaryMatrix, 'dispAll', 'propShiftX')
 
-    % Axes and reference line
-    axis('square')
-    min_ax = min([xlim ylim]);
-    max_ax = max([xlim ylim]);
-    axis( [min_ax*0.9 max_ax*1.1 min_ax*0.9 max_ax*1.1 ]);    
-    rline = refline(1,0);    
-    rline.Color = [.5 .5 .5];
-    rline.LineStyle = '-';
-
-% print(sprintf('%E2_disp_vs_asymp_%s',figDir,date),'-painters','-dpdf')
-print(sprintf('%sE2_disp_vs_asymp_%s',figDir,date),'-painters','-djpeg')
-
-%% Plot specific correlation
-plot_correlation(summaryMatrix, 'propShiftTheta', 'asymptote')
-
-set(gcf,'units','centimeters','pos',[5 5 15 15]);
-
-    % Axes and reference line
-    axis('square')
-    min_ax = min([xlim ylim]);
-    max_ax = max([xlim ylim]);
-    axis( [min_ax*0.9 max_ax*1.1 min_ax*0.9 max_ax*1.1 ]);    
-    rline = refline(1,0);    
-    rline.Color = [.5 .5 .5];
-    rline.LineStyle = '-';
-
-% print(sprintf('%E2_disp_vs_asymp_%s',figDir,date),'-painters','-dpdf')
-% print(sprintf('%sE2_disp_vs_asymp_%s',figDir,date),'-painters','-djpeg')
 %% BAR GRAPHS Split CCW and CW
 figure
 % Plot bars
@@ -297,6 +261,11 @@ xticks = [1.5 4.5 7.5 10.5 13.5 16.5];
 % set(gca,'xTick',xticks,'YTick',yticks,'xticklabel',{'Early','Late'},'ylim',[-6 26],'xticklabelrotation',45)
 set(gca,'xTick',xticks,'xticklabel',barVarNames,'ylim',[-30 60],'xticklabelrotation',45)
 
+
+% str3 = sprintf('Janet bar split', si);
+% cd('C:\BoxSync\Dropbox\!!temp_figs\')
+% print(str3,'-painters','-djpeg')
+% savefig(str3)
 %% BAR GRAPHS avg both directions
 figure
 
@@ -309,5 +278,10 @@ end
 
 xticks = [1:6];
 set(gca,'xTick',xticks,'xticklabel',barVarNames,'ylim',[-30 60],'xticklabelrotation',45)
+
+% str3 = sprintf('Janet bar together', si);
+% cd('C:\BoxSync\Dropbox\!!temp_figs\')
+% print(str3,'-painters','-djpeg')
+% savefig(str3)
 
 

@@ -1,15 +1,11 @@
-%% Load data
+%% Set directory
 clearvars
-% close all
-
 addpath(genpath(pwd))
-
 % save figures here
 figDir = '../Figures/';
 
+%% Load and clean Data
 load('pre-processed_data/AlissaPropEC_trials.mat')
-%%
-D = T;
 
 K_subj_names = {'PropVMR_602A__S53A', 'PropVMR_602A__S54A', ... % begin day 1
     'PropVMR_602A__S55A', 'PropVMR_602A__S56A', ...
@@ -184,11 +180,12 @@ for i = 1 % subj to plot
     xlabel('mm'); ylabel('mm')
 end
 
-% print(sprintf('%segSubj_%s',figDir,date),'-painters','-dpdf')
-print(sprintf('%segSubj_%s',figDir,date),'-painters','-djpeg')
+% print(sprintf('%sE1egSubj_%s',figDir,date),'-painters','-dpdf')
+print(sprintf('%sE1egSubj_%s',figDir,date),'-painters','-djpeg')
 
 %% Group hand angle and proprioceptive bias
-E = T3(T3.day_num  == 1, :); %day 1 or 2
+day = 1;
+E = T3(T3.day_num  == day, :); %day 1 or 2
 figure; hold on;
 set(gcf,'units','centimeters','pos',[5 5 20 10]);
 
@@ -198,7 +195,8 @@ dpPropVMR_plotGroup(E, 'prop_theta', 'PB', [0 max(E.TN) -15 35], 'r')
 xlabel('Trial'); ylabel('Hand Angle/Proprioceptive estimate (º)')
 
 % print(sprintf('%E1_Group_Hand_%s',figDir,date),'-painters','-dpdf')
-print(sprintf('%sE1_Group_Hand_%s',figDir,date),'-painters','-djpeg')
+print(sprintf('%sE1_Group_day%d_%s',figDir,day,date),'-painters','-djpeg')
+
 %% Subject reliability table
 clearvars -except T* K* figDir*
 E = T3;
@@ -218,10 +216,9 @@ for si = 1:length(subj)
         rotCond(sdi,1) = mean(E.rot_cond(subj_day_idx,1));
         
         % Adaptation dependent variables
-        earlyLearning(sdi,1) = nanmean( E.hand( subj_day_idx & E.CN >= (21 + 1)  & E.CN <= (21 + 4) ) ); % clamp cycles 2 - 4 (smaller clamp cycles than usual because of generalization)
         afterEffect(sdi,1) = nanmean( E.hand( subj_day_idx & E.CN >= 77  & E.CN <= 77 ) ); % last aftereffect
-        %     afterEffect(si,1) = nanmean( E.hand( E.SN==subj(si) & E.CN == 84 ) ); % last aftereffect
-        
+%         afterEffect(sdi,1) = nanmean( E.hand( subj_day_idx & (E.CN == 62 | E.CN == 77 | E.CN == 84 ) ) ); % last aftereffect
+
         % Proprioceptive shift
         shift_idx = subj_day_idx & E.PB > 2 ;
         base_idx = subj_day_idx & E.PB == 1 ;
@@ -239,7 +236,7 @@ for si = 1:length(subj)
     end
 end
 % Summary table
-reliabilityMatrix = table(earlyLearning, afterEffect, propShiftX, propShiftTheta, dispBlock1, dispAll);
+reliabilityMatrix = table(afterEffect, propShiftX, propShiftTheta, dispBlock1, dispAll);
 
 day1Matrix = reliabilityMatrix(Day==1,:);
 day2Matrix = reliabilityMatrix(Day==2,:);
@@ -285,7 +282,7 @@ figure; set(gcf,'units','centimeters','pos',[5 5 30 20]);
 
 varnames = day1Matrix.Properties.VariableNames;
 for vi = 1:length(varnames) % loop over hand angle columns
-    subplot(2, length(varnames)/2, vi);
+    subplot(2, ceil(length(varnames)/2), vi);
     
     x = day1Matrix.(varnames{vi});
     y = day2Matrix.(varnames{vi});
@@ -353,6 +350,23 @@ set(gcf,'units','centimeters','pos',[5 5 15 15]);
 
 % print(sprintf('%E1_disp_vs_asymp_%s',figDir,date),'-painters','-dpdf')
 print(sprintf('%sE1_disp_vs_asymp_%s',figDir,date),'-painters','-djpeg')
+
+%% Plot specific correlation
+dpPropVMR_plot_correlation(summaryMatrix, 'dispAll', 'propShiftTheta')
+
+set(gcf,'units','centimeters','pos',[5 5 15 15]);
+
+    % Axes and reference line
+    axis('square')
+    min_ax = min([xlim ylim]);
+    max_ax = max([xlim ylim]);
+    axis( [min_ax*0.9 max_ax*1.1 min_ax*0.9 max_ax*1.1 ]);    
+    rline = refline(1,0);    
+    rline.Color = [.5 .5 .5];
+    rline.LineStyle = '-';
+
+% print(sprintf('%sE1_disp_vs_shift_%s',figDir,date),'-painters','-dpdf')
+% print(sprintf('%sE1_disp_vs_shift_%s',figDir,date),'-painters','-djpeg')
 
 %% BAR GRAPHS Split CCW and CW
 figure
