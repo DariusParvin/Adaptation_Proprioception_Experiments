@@ -190,7 +190,6 @@ print(sprintf('%segSubj_%s',figDir,date),'-painters','-djpeg')
 %% Group hand angle and proprioceptive bias
 E = T3(T3.day_num  == 1, :); %day 1 or 2
 figure; hold on;
-set(gcf,'units','centimeters','pos',[5 5 20 10]);
 
 dpPropVMR_plotGroup(E, 'hand', 'RB', [0 max(E.TN) -15 35], 'b')
 dpPropVMR_plotGroup(E, 'prop_theta', 'PB', [0 max(E.TN) -15 35], 'r')
@@ -200,7 +199,7 @@ xlabel('Trial'); ylabel('Hand Angle/Proprioceptive estimate (º)')
 % print(sprintf('%E1_Group_Hand_%s',figDir,date),'-painters','-dpdf')
 print(sprintf('%sE1_Group_Hand_%s',figDir,date),'-painters','-djpeg')
 %% Subject reliability table
-clearvars -except T* K* figDir*
+clearvars -except T* K*
 E = T3;
 subj = unique(E.SN);
 days = unique(E.day_num);
@@ -245,7 +244,7 @@ day1Matrix = reliabilityMatrix(Day==1,:);
 day2Matrix = reliabilityMatrix(Day==2,:);
 
 %% Subject summary table
-clearvars -except T* K* summary* day* figDir* 
+clearvars -except T* K* day* figDir*
 E = T3;
 subj = unique(E.SN);
 
@@ -280,8 +279,8 @@ subjCond = table(SN, rotCond);
 summaryBar = [summaryMatrix subjCond];
 
 %% RELIABILITY CORRELATION MATRIX
-clearvars -except T* K* summary* day* figDir* 
-figure; set(gcf,'units','centimeters','pos',[5 5 30 20]);
+clearvars -except T* K* day* figDir*
+figure;
 
 varnames = day1Matrix.Properties.VariableNames;
 for vi = 1:length(varnames) % loop over hand angle columns
@@ -290,13 +289,16 @@ for vi = 1:length(varnames) % loop over hand angle columns
     x = day1Matrix.(varnames{vi});
     y = day2Matrix.(varnames{vi});
     AX = plot(x,y,'.','markersize',8);
-    
-    % Axes and reference line
     axis('square')
+    
     min_ax = min([xlim ylim]);
     max_ax = max([xlim ylim]);
-    axis( [min_ax*0.9 max_ax*1.1 min_ax*0.9 max_ax*1.1 ]);    
-    rline = refline(1,0);    
+    axis( [min_ax*0.9 max_ax*1.1 min_ax*0.9 max_ax*1.1 ]);
+    
+    
+    xlim(ylim);
+    rline = refline(1,0);
+    
     rline.Color = [.5 .5 .5];
     rline.LineStyle = '-';
     
@@ -313,7 +315,7 @@ end
 % print(sprintf('%E1_reliability_%s',figDir,date),'-painters','-dpdf')
 print(sprintf('%sE1_reliability_%s',figDir,date),'-painters','-djpeg')
 %% CORRELATION MATRIX
-figure; set(gcf,'units','centimeters','pos',[5 5 20 20]);
+figure
 [S,AX,BigAx,H,HAx] = plotmatrix(summaryMatrix{:,:});
 [rho,pval] = corrcoef(summaryMatrix{:,:});
 
@@ -339,17 +341,6 @@ print(sprintf('%sE1_corr_Matrix_%s',figDir,date),'-painters','-djpeg')
 
 %% Plot specific correlation
 dpPropVMR_plot_correlation(summaryMatrix, 'dispAll', 'afterEffect')
-
-set(gcf,'units','centimeters','pos',[5 5 15 15]);
-
-    % Axes and reference line
-    axis('square')
-    min_ax = min([xlim ylim]);
-    max_ax = max([xlim ylim]);
-    axis( [min_ax*0.9 max_ax*1.1 min_ax*0.9 max_ax*1.1 ]);    
-    rline = refline(1,0);    
-    rline.Color = [.5 .5 .5];
-    rline.LineStyle = '-';
 
 % print(sprintf('%E1_disp_vs_asymp_%s',figDir,date),'-painters','-dpdf')
 print(sprintf('%sE1_disp_vs_asymp_%s',figDir,date),'-painters','-djpeg')
