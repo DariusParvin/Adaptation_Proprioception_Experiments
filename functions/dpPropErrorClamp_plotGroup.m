@@ -37,9 +37,9 @@ end
 axis(axisLim);
 
 % Draw block breaks
-drawline(0, 'dir', 'horz', 'linestyle', '-'); 
+drawline1(0, 'dir', 'horz', 'linestyle', '-'); 
 blockLines = [9.5 36.5 72.5 108.5 144.5 180.5 270.5 360.5 396.5 486.5 522.5 612.5 648.5 738.5];
-drawline(blockLines , 'dir', 'vert', 'linestyle', ':');  % Draws line for blocks
+drawline1(blockLines , 'dir', 'vert', 'linestyle', ':');  % Draws line for blocks
 
 % Shade the no feedback trials
 no_fb_base =patch([9.5 36.5 36.5 9.5],[min(ylim) min(ylim) max(ylim) max(ylim)],zeros(1,4));

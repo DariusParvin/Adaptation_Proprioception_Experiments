@@ -1,6 +1,6 @@
 %% Set directory
 clearvars
-addpath(genpath(pwd))
+addpath(genpath('..'))
 % save figures here
 figDir = '../Figures/';
 
@@ -139,8 +139,8 @@ for i = 1 % subj to plot
     y2 = E.prop_theta(indx);
     scatter(x2,y2,10,'filled');
     % Reference lines
-    drawline(0, 'dir', 'horz', 'linestyle', '-'); % Draws line at target
-    drawline(K_lines_all_trials, 'dir', 'vert', 'linestyle', ':');  % Draws line for blocks
+    drawline1(0, 'dir', 'horz', 'linestyle', '-'); % Draws line at target
+    drawline1(K_lines_all_trials, 'dir', 'vert', 'linestyle', ':');  % Draws line for blocks
     % Shade the no feedback trials
     no_fb_base =patch([0 10.5 10.5 0],[min(ylim) min(ylim) max(ylim) max(ylim)],zeros(1,4));
     set(no_fb_base,'facecolor',[0 0 0]); set(no_fb_base,'edgealpha',0);

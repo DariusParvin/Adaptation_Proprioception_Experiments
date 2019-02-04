@@ -1,6 +1,6 @@
 %% Load data
-clear all;  clc
-addpath(genpath(pwd))
+clearvars;  clc
+addpath(genpath('..'))
 figDir = '../Figures/';
 
 if ispc
@@ -35,7 +35,7 @@ prop_vars = {'FC_bias_X', 'FC_bias_Y', 'prop_theta'};
 % T1 REMOVE OUTLIERS
 T1 = T;
 outlier_idx = abs(T1.hand) > 90 ; % Remove trials greater than x degrees
-fprintf('Outlier trials removed: %d \n' , [sum(outlier_idx)])
+fprintf('Outlier trials removed: %d \n' , sum(outlier_idx))
 T1.hand(outlier_idx, 1) = nan; % Flip trials .*(-1)
 
 
@@ -61,8 +61,8 @@ baseCN = 9:12; %%%% Reaching Baseline cycles to subtract
 base_idx = T3.CN >= min(baseCN) & T3.CN <= max(baseCN); % index of baseline cycles
 base_mean = varfun(@nanmean,T2(base_idx ,:),'GroupingVariables',{'SN','ti'},'OutputFormat','table');
 
-for SN = unique(T3.SN)';
-    for ti = unique(T3.ti(~isnan(T3.ti)))'; % subtract baseline for each target
+for SN = unique(T3.SN)'
+    for ti = unique(T3.ti(~isnan(T3.ti)))' % subtract baseline for each target
         trial_idx = (T3.SN==SN & T3.ti==ti);
         base_idx = (base_mean.SN==SN & base_mean.ti==ti);
         T3.hand(trial_idx) = T2.hand(trial_idx) - base_mean.nanmean_hand(base_idx);
@@ -74,8 +74,8 @@ prop_baseCN = 17:20; %%%% Proprioceptive Baseline cycles to subtract
 prop_base_idx = T3.CN >= min(prop_baseCN) & T3.CN <= max(prop_baseCN); % index of baseline cycles
 prop_base_mean = varfun(@nanmean,T2(prop_base_idx ,:),'GroupingVariables',{'SN','PropTestAng'},'OutputFormat','table');
 
-for SN = unique(T3.SN)';
-    for prop_ti = unique(T3.PropTestAng(~isnan(T3.PropTestAng)))'; % subtract baseline for each target
+for SN = unique(T3.SN)'
+    for prop_ti = unique(T3.PropTestAng(~isnan(T3.PropTestAng)))' % subtract baseline for each target
         for vi = 1:length(prop_vars) % loop over hand angle columns
             trial_idx = (T3.SN==SN & T3.PropTestAng==prop_ti);
             prop_base_idx = (prop_base_mean.SN==SN & prop_base_mean.PropTestAng==prop_ti);
@@ -117,8 +117,8 @@ for i = 29
     y2 = E.prop_theta( E.SN == subjs(i));
     scatter(x2,y2,10,'filled');
     % Reference lines
-    drawline(0, 'dir', 'horz', 'linestyle', '-'); % Draws line at target
-    drawline(K_lines_all_trials, 'dir', 'vert', 'linestyle', ':');  % Draws line for blocks
+    drawline1(0, 'dir', 'horz', 'linestyle', '-'); % Draws line at target
+    drawline1(K_lines_all_trials, 'dir', 'vert', 'linestyle', ':');  % Draws line for blocks
     % Shade the no feedback trials
     no_fb_base =patch([9.5 36.5 36.5 9.5],[min(ylim) min(ylim) max(ylim) max(ylim)],zeros(1,4));
     set(no_fb_base,'facecolor',[0 0 0]); set(no_fb_base,'edgealpha',0);
@@ -142,7 +142,7 @@ for i = 29
     subplot(2,2,4); title('Mean Proprioceptive Bias'); hold on;
     % Mean Proprioceptive estimate per block
     x3=[]; y3=[];
-    PBs = [1:6]; % Proprioceptive block number
+    PBs = 1:6 ; % Proprioceptive block number
     for bi = 1:length(PBs)
         x3(bi,1) = nanmean( E.FC_bias_X(E.SN == subjs(i) & E.PB == PBs(bi)) );
         y3(bi,1) = nanmean( E.FC_bias_Y(E.SN == subjs(i) & E.PB == PBs(bi)) );
@@ -221,7 +221,7 @@ print(sprintf('%sE2_Group_Hand_%s',figDir,date),'-painters','-djpeg')
 %% CORRELATION MATRIX
 figure; set(gcf,'units','centimeters','pos',[5 5 20 20]);
 [S,AX,BigAx,H,HAx] = plotmatrix(summaryMatrix{:,:});
-[rho,pval] = corrcoef(summaryMatrix{:,:})
+[rho,pval] = corrcoef(summaryMatrix{:,:});
 
 almostSigPlots = find(pval<0.1);
 sigPlots = find(pval<0.05);
@@ -232,11 +232,11 @@ for vi = 1:length(varnames) % loop over hand angle columns
     AX(length(varnames),vi).XLabel.String = varnames{vi};
 end
 
-for sigi = 1:length(almostSigPlots);
+for sigi = 1:length(almostSigPlots)
     S(almostSigPlots(sigi)).Color = [1 0.5 0];
 end
 
-for sigi = 1:length(sigPlots);
+for sigi = 1:length(sigPlots)
     S(sigPlots(sigi)).Color = 'r';
 end
 
@@ -307,7 +307,7 @@ for vi = 1:6
     dpPlotBar(vi, dataPoints );
 end
 
-xticks = [1:6];
+xticks = 1:6;
 set(gca,'xTick',xticks,'xticklabel',barVarNames,'ylim',[-30 60],'xticklabelrotation',45)
 
 
