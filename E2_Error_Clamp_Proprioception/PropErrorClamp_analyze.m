@@ -191,7 +191,8 @@ for si = 1:length(subj)
     dispAll(si,1) = dispersion( E.FC_bias_X(disp_idx), E.FC_bias_Y(disp_idx));
 end
 % Summary table
-summaryMatrix = table(earlyLearning, asymptote, propShiftX, propShiftTheta, dispBlock1, dispAll);
+% summaryMatrix = table(earlyLearning, asymptote, propShiftX, propShiftTheta, dispBlock1, dispAll);
+summaryMatrix = table(asymptote, propShiftTheta, dispAll);
 
 subjCond = table(SN, rotCond);
 summaryBar = [summaryMatrix subjCond];
@@ -208,6 +209,7 @@ xlabel('Trial'); ylabel('Hand Angle/Proprioceptive estimate (º)')
 
 % print(sprintf('%E2_Group_Hand_%s',figDir,date),'-painters','-dpdf')
 print(sprintf('%sE2_Group_Hand_%s',figDir,date),'-painters','-djpeg')
+
 %% Plot Group average ST/RT/MT etc
 % % clearvars -except T* K*
 % E = T3;
@@ -245,37 +247,20 @@ print(sprintf('%sE2_corr_Matrix_%s',figDir,date),'-painters','-djpeg')
 
 %% Plot specific correlation
 plot_correlation(summaryMatrix, 'dispAll', 'asymptote')
-
 set(gcf,'units','centimeters','pos',[5 5 15 15]);
 
-    % Axes and reference line
-    axis('square')
-    min_ax = min([xlim ylim]);
-    max_ax = max([xlim ylim]);
-    axis( [min_ax*0.9 max_ax*1.1 min_ax*0.9 max_ax*1.1 ]);    
-    rline = refline(1,0);    
-    rline.Color = [.5 .5 .5];
-    rline.LineStyle = '-';
+xlabel('Dispersion (mm)'); ylabel('Asymptote (deg)');
 
 % print(sprintf('%E2_disp_vs_asymp_%s',figDir,date),'-painters','-dpdf')
 print(sprintf('%sE2_disp_vs_asymp_%s',figDir,date),'-painters','-djpeg')
 
 %% Plot specific correlation
 plot_correlation(summaryMatrix, 'propShiftTheta', 'asymptote')
-
 set(gcf,'units','centimeters','pos',[5 5 15 15]);
-
-    % Axes and reference line
-    axis('square')
-    min_ax = min([xlim ylim]);
-    max_ax = max([xlim ylim]);
-    axis( [min_ax*0.9 max_ax*1.1 min_ax*0.9 max_ax*1.1 ]);    
-    rline = refline(1,0);    
-    rline.Color = [.5 .5 .5];
-    rline.LineStyle = '-';
+xlabel('Proprioceptive shift (mm)'); ylabel('Asymptote (deg)');
 
 % print(sprintf('%E2_disp_vs_asymp_%s',figDir,date),'-painters','-dpdf')
-% print(sprintf('%sE2_disp_vs_asymp_%s',figDir,date),'-painters','-djpeg')
+print(sprintf('%sE2_propShfitTheta_vs_asymp_%s',figDir,date),'-painters','-djpeg')
 %% BAR GRAPHS Split CCW and CW
 figure
 % Plot bars

@@ -236,7 +236,8 @@ for si = 1:length(subj)
     end
 end
 % Summary table
-reliabilityMatrix = table(afterEffect, propShiftX, propShiftTheta, dispBlock1, dispAll);
+% reliabilityMatrix = table(afterEffect, propShiftX, propShiftTheta, dispBlock1, dispAll);
+reliabilityMatrix = table(afterEffect, propShiftTheta, dispAll);
 
 day1Matrix = reliabilityMatrix(Day==1,:);
 day2Matrix = reliabilityMatrix(Day==2,:);
@@ -271,7 +272,8 @@ for si = 1:length(subj)
     dispAll(si,1) = dispersion( E.FC_bias_X(disp_idx), E.FC_bias_Y(disp_idx));
 end
 % Summary table
-summaryMatrix = table(earlyLearning, afterEffect, propShiftX, propShiftTheta, dispBlock1, dispAll);
+% summaryMatrix = table(earlyLearning, afterEffect, propShiftX, propShiftTheta, dispBlock1, dispAll);
+summaryMatrix = table(afterEffect, propShiftTheta, dispAll);
 
 subjCond = table(SN, rotCond);
 summaryBar = [summaryMatrix subjCond];
@@ -282,7 +284,7 @@ figure; set(gcf,'units','centimeters','pos',[5 5 30 20]);
 
 varnames = day1Matrix.Properties.VariableNames;
 for vi = 1:length(varnames) % loop over hand angle columns
-    subplot(2, ceil(length(varnames)/2), vi);
+    subplot(1, ceil(length(varnames)/1), vi);
     
     x = day1Matrix.(varnames{vi});
     y = day2Matrix.(varnames{vi});
@@ -336,34 +338,16 @@ print(sprintf('%sE1_corr_Matrix_%s',figDir,date),'-painters','-djpeg')
 
 %% Plot specific correlation
 dpPropVMR_plot_correlation(summaryMatrix, 'dispAll', 'afterEffect')
-
 set(gcf,'units','centimeters','pos',[5 5 15 15]);
-
-    % Axes and reference line
-    axis('square')
-    min_ax = min([xlim ylim]);
-    max_ax = max([xlim ylim]);
-    axis( [min_ax*0.9 max_ax*1.1 min_ax*0.9 max_ax*1.1 ]);    
-    rline = refline(1,0);    
-    rline.Color = [.5 .5 .5];
-    rline.LineStyle = '-';
+xlabel('Dispersion (mm)'); ylabel('After effect (deg)');
 
 % print(sprintf('%E1_disp_vs_asymp_%s',figDir,date),'-painters','-dpdf')
 print(sprintf('%sE1_disp_vs_asymp_%s',figDir,date),'-painters','-djpeg')
 
 %% Plot specific correlation
 dpPropVMR_plot_correlation(summaryMatrix, 'dispAll', 'propShiftTheta')
-
 set(gcf,'units','centimeters','pos',[5 5 15 15]);
-
-    % Axes and reference line
-    axis('square')
-    min_ax = min([xlim ylim]);
-    max_ax = max([xlim ylim]);
-    axis( [min_ax*0.9 max_ax*1.1 min_ax*0.9 max_ax*1.1 ]);    
-    rline = refline(1,0);    
-    rline.Color = [.5 .5 .5];
-    rline.LineStyle = '-';
+xlabel('Dispersion (mm)'); ylabel('After effect (deg)');
 
 % print(sprintf('%sE1_disp_vs_shift_%s',figDir,date),'-painters','-dpdf')
 % print(sprintf('%sE1_disp_vs_shift_%s',figDir,date),'-painters','-djpeg')
