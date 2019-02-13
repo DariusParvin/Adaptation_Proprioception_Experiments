@@ -1,5 +1,8 @@
 # Adaptation and Proprioception Experiment
 
+Ivry lab
+Darius Parvin, Hyosub Kim, Alissa Stover, Janet Hwang, Rich Ivry
+
 Analysis scripts for reaching experiments looking at adaptation and proprioception.
 
 Experiment 1 - Two day experiment. Same schedule on both days. Visuomotor rotation introduced gradually up to 30 deg
