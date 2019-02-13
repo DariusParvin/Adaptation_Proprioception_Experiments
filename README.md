@@ -1,6 +1,6 @@
 # Adaptation and Proprioception Experiment
 
-Ivry lab
+Ivry lab<br>
 Darius Parvin, Hyosub Kim, Alissa Stover, Janet Hwang, Rich Ivry
 
 Analysis scripts for reaching experiments looking at adaptation and proprioception.
