@@ -299,7 +299,7 @@ for s = num_tested_subj+1:length(subj)
     V.maxRadDist = S.maxRadDist;
     
     
-    % Remove the practise trials
+    % Remove the practice trials
     D = structfun(@(x) (x([(1:trialbeforepractice),(startofclamp:end)],:)), D, 'uniformoutput', 0);    
     V = structfun(@(x) (x([(1:trialbeforepractice),(startofclamp:end)],:)), V, 'uniformoutput', 0);
     

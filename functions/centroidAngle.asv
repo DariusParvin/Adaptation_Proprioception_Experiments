@@ -1,0 +1,25 @@
+% function cAngle = centroidAngle(x,y)
+% This works out the dispersion (average distance to the center of a bunch
+% of coordinates). x and y are the list of x and y coordinates for each
+% point.
+
+x = E.FC_bias_X(disp_idx);
+y = E.FC_bias_Y(disp_idx);
+
+
+% Work out the center of the points
+meanx = mean(x);
+meany = mean(y);
+
+P0 = [0,-160]; % Start position 
+P1 = [0,0]; % True hand position
+P2 = [mean(x),mean(y)]; % centroid of estimates
+
+% Calculate the angle between P0-P1 and P0-P2
+ang = atan2(abs(det([P2-P0;P1-P0])),dot(P2-P0,P1-P0))*180/pi
+
+ A1 = atan2(abs((x2-x1)*(y3-y1)-(x3-x1)*(y2-y1)), ...
+                (x2-x1)*(x3-x1)+(y2-y1)*(y3-y1));
+
+
+% end

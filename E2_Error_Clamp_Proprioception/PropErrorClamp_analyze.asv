@@ -187,6 +187,8 @@ for si = 1:length(subj)
     
     propShiftTheta(si,1) = nanmean(E.prop_theta(shift_idx)) - nanmean(E.prop_theta(base_idx));
     
+    propShiftTheta2(si,1) = centroidAngle(E.FC_bias_X(disp_idx), E.FC_bias_Y(disp_idx)) -  centroidAngle(E.FC_bias_X(base_idx), E.FC_bias_Y(base_idx));
+    
     % Proprioceptive dispersion
     disp_idx = E.SN==subj(si) & E.PB==2;
     dispBlock1(si,1) = dispersion( E.FC_bias_X(disp_idx), E.FC_bias_Y(disp_idx));

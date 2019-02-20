@@ -231,11 +231,13 @@ for si = 1:length(subj)
         disp_idx=[];
         disp_idx = subj_day_idx & ~isnan(E.PB);
         dispAll(sdi,1) = dispersion( E.FC_bias_X(disp_idx), E.FC_bias_Y(disp_idx));
+        
+        propShiftTheta2(sdi,1) = centroidAngle( E.FC_bias_X(disp_idx), E.FC_bias_Y(disp_idx));
     end
 end
 % Summary table
 % reliabilityMatrix = table(afterEffect, propShiftX, propShiftTheta, dispBlock1, dispAll);
-reliabilityMatrix = table(afterEffect, propShiftTheta, dispAll);
+reliabilityMatrix = table(afterEffect, propShiftTheta, propShiftX,  propShiftTheta2, dispAll);
 
 day1Matrix = reliabilityMatrix(Day==1,:);
 day2Matrix = reliabilityMatrix(Day==2,:);
@@ -268,10 +270,12 @@ for si = 1:length(subj)
     disp_idx=[];
     disp_idx = E.SN==subj(si) & ~isnan(E.PB);
     dispAll(si,1) = dispersion( E.FC_bias_X(disp_idx), E.FC_bias_Y(disp_idx));
+    
+    propShiftTheta2(si,1) = centroidAngle( E.FC_bias_X(disp_idx), E.FC_bias_Y(disp_idx));
 end
 % Summary table
 % summaryMatrix = table(earlyLearning, afterEffect, propShiftX, propShiftTheta, dispBlock1, dispAll);
-summaryMatrix = table(afterEffect, propShiftTheta, dispAll);
+summaryMatrix = table(afterEffect, propShiftTheta, propShiftTheta2, dispAll);
 
 subjCond = table(SN, rotCond);
 summaryBar = [summaryMatrix subjCond];
