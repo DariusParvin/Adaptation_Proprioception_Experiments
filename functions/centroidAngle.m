@@ -7,5 +7,5 @@ P2 = [mean(x),mean(y)]; % centroid of proprioceptive estimates
 
 % Calculate the angle between P0-P1 and P0-P2
 cAngle = atan2(abs(det([P2-P0;P1-P0])),dot(P2-P0,P1-P0))*180/pi;
-
+cAngle = cAngle * -sign(mean(x)); % Positive is counterclockwise 
 end

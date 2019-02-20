@@ -1,10 +1,10 @@
-%% Set directory
+%% Load and clean Data
 clearvars
-addpath(genpath('..'))
+addpath(genpath('..')) % adding functions to path
+
 % save figures here
 figDir = '../Figures/';
 
-%% Load and clean Data
 load('pre-processed_data/AlissaPropEC_trials.mat')
 
 K_subj_names = {'PropVMR_602A__S53A', 'PropVMR_602A__S54A', ... % begin day 1
@@ -195,7 +195,7 @@ xlabel('Trial'); ylabel('Hand Angle/Proprioceptive estimate (º)')
 % print(sprintf('%E1_Group_Hand_%s',figDir,date),'-painters','-dpdf')
 print(sprintf('%sE1_Group_day%d_%s',figDir,day,date),'-painters','-djpeg')
 
-%% Subject reliability table
+%% Create Subject reliability table
 clearvars -except T* K* figDir*
 E = T3;
 subj = unique(E.SN);
@@ -221,26 +221,29 @@ for si = 1:length(subj)
         shift_idx = subj_day_idx & E.PB > 2 ;
         base_idx = subj_day_idx & E.PB == 1 ;
         propShiftX(sdi,1) = nanmean(E.FC_bias_X(shift_idx)) - nanmean(E.FC_bias_X(base_idx));
-        
-        propShiftTheta(sdi,1) = nanmean(E.prop_theta(shift_idx)) - nanmean(E.prop_theta(base_idx));
-        
+              
+        propShiftTheta(sdi,1) = centroidAngle( E.FC_bias_X(shift_idx), E.FC_bias_Y(shift_idx)) - ...
+                            centroidAngle( E.FC_bias_X(base_idx), E.FC_bias_Y(base_idx));
+                        
         % Proprioceptive dispersion
-        disp_idx = subj_day_idx & E.PB==1;
-        dispBlock1(sdi,1) = dispersion( E.FC_bias_X(disp_idx), E.FC_bias_Y(disp_idx));
+        block1_idx = [];
+        block1_idx = subj_day_idx & E.PB==1;
+        dispBlock1(sdi,1) = dispersion( E.FC_bias_X(block1_idx), E.FC_bias_Y(block1_idx));
         
         disp_idx=[];
-        disp_idx = subj_day_idx & ~isnan(E.PB);
-        dispAll(sdi,1) = dispersion( E.FC_bias_X(disp_idx), E.FC_bias_Y(disp_idx));
+%         disp_idx = subj_day_idx & ~isnan(E.PB);
+        disp_idx = subj_day_idx & E.PB > 2 ;
+        dispAll(sdi,1) = dispersion2(E.FC_bias_X(block1_idx), E.FC_bias_Y(block1_idx), E.FC_bias_X(disp_idx), E.FC_bias_Y(disp_idx));
     end
 end
 % Summary table
 % reliabilityMatrix = table(afterEffect, propShiftX, propShiftTheta, dispBlock1, dispAll);
-reliabilityMatrix = table(afterEffect, propShiftTheta, dispAll);
+reliabilityMatrix = table(dispBlock1, afterEffect, propShiftTheta, dispAll);
 
 day1Matrix = reliabilityMatrix(Day==1,:);
 day2Matrix = reliabilityMatrix(Day==2,:);
 
-%% Subject summary table
+%% Create Subject summary table
 clearvars -except T* K* summary* day* figDir* 
 E = T3;
 subj = unique(E.SN);
@@ -259,15 +262,17 @@ for si = 1:length(subj)
     base_idx = E.SN==subj(si) & E.PB == 1 ;
     propShiftX(si,1) = nanmean(E.FC_bias_X(shift_idx)) - nanmean(E.FC_bias_X(base_idx));
     
-    propShiftTheta(si,1) = nanmean(E.prop_theta(shift_idx)) - nanmean(E.prop_theta(base_idx));
+    propShiftTheta(si,1) = centroidAngle( E.FC_bias_X(shift_idx), E.FC_bias_Y(shift_idx)) - ...
+        centroidAngle( E.FC_bias_X(base_idx), E.FC_bias_Y(base_idx));
     
     % Proprioceptive dispersion
-    disp_idx = E.SN==subj(si) & E.PB==1;
-    dispBlock1(si,1) = dispersion( E.FC_bias_X(disp_idx), E.FC_bias_Y(disp_idx));
+    block1_idx = E.SN==subj(si) & E.PB==1;
+    dispBlock1(si,1) = dispersion( E.FC_bias_X(block1_idx), E.FC_bias_Y(block1_idx));
     
     disp_idx=[];
-    disp_idx = E.SN==subj(si) & ~isnan(E.PB);
-    dispAll(si,1) = dispersion( E.FC_bias_X(disp_idx), E.FC_bias_Y(disp_idx));
+    disp_idx = E.SN==subj(si) & E.PB > 2;    
+    dispAll(si,1) = dispersion2(E.FC_bias_X(block1_idx), E.FC_bias_Y(block1_idx), E.FC_bias_X(disp_idx), E.FC_bias_Y(disp_idx));
+
 end
 % Summary table
 % summaryMatrix = table(earlyLearning, afterEffect, propShiftX, propShiftTheta, dispBlock1, dispAll);
@@ -276,7 +281,7 @@ summaryMatrix = table(afterEffect, propShiftTheta, dispAll);
 subjCond = table(SN, rotCond);
 summaryBar = [summaryMatrix subjCond];
 
-%% RELIABILITY CORRELATION MATRIX
+%% PLOT RELIABILITY CORRELATION MATRIX
 clearvars -except T* K* summary* day* figDir* 
 figure; set(gcf,'units','centimeters','pos',[5 5 30 20]);
 
@@ -309,7 +314,8 @@ end
 
 % print(sprintf('%E1_reliability_%s',figDir,date),'-painters','-dpdf')
 print(sprintf('%sE1_reliability_%s',figDir,date),'-painters','-djpeg')
-%% CORRELATION MATRIX
+
+%% PLOT CORRELATION MATRIX
 figure; set(gcf,'units','centimeters','pos',[5 5 20 20]);
 [S,AX,BigAx,H,HAx] = plotmatrix(summaryMatrix{:,:});
 [rho,pval] = corrcoef(summaryMatrix{:,:});
@@ -356,7 +362,7 @@ figure
 
 barVarNames = summaryBar.Properties.VariableNames;
 xpos = [1 2 4 5 7 8 10 11 13 14 16 17];
-for vi = 1:6
+for vi = 1:length(barVarNames)
     dataPoints = summaryBar.(barVarNames{vi})(summaryBar.rotCond < 0);
     dpPlotBar(xpos(vi*2), dataPoints );
     
@@ -374,10 +380,12 @@ figure
 
 % Plot bars
 barVarNames = summaryBar.Properties.VariableNames;
-for vi = 1:6
+for vi = 1:length(barVarNames)
     dataPoints = summaryBar.(barVarNames{vi});
     dpPlotBar(vi, dataPoints );
 end
 
 xticks = [1:6];
 set(gca,'xTick',xticks,'xticklabel',barVarNames,'ylim',[-30 60],'xticklabelrotation',45);
+
+ttest1(summaryBar.propShiftTheta)
