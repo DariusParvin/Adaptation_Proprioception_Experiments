@@ -384,8 +384,10 @@ for vi = 1:length(barVarNames)
     dataPoints = summaryBar.(barVarNames{vi});
     dpPlotBar(vi, dataPoints );
 end
-
 xticks = [1:6];
 set(gca,'xTick',xticks,'xticklabel',barVarNames,'ylim',[-30 60],'xticklabelrotation',45);
 
-ttest1(summaryBar.propShiftTheta)
+%% STATS
+
+fprintf('ttest to see if proprioceptive shift is significant')
+ttest1(summaryBar.propShiftTheta, 0, 2, 'onesample')
