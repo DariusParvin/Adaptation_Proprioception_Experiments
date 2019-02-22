@@ -23,6 +23,5 @@ xlabel(xVar)
 ylabel(yVar)
 str = sprintf('%s vs %s,',xVar{:}, yVar{:});
 title(str)
-
 set(gca,'FontSize',8)
 end

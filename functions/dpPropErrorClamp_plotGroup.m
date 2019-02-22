@@ -44,8 +44,9 @@ drawline1(blockLines , 'dir', 'vert', 'linestyle', ':');  % Draws line for block
 % Shade the no feedback trials
 no_fb_base =patch([9.5 36.5 36.5 9.5],[min(ylim) min(ylim) max(ylim) max(ylim)],zeros(1,4));
 set(no_fb_base,'facecolor',[0 0 0]); set(no_fb_base,'edgealpha',0);
-alpha(no_fb_base,0.1)
+alpha(no_fb_base,0.05)
 
+set(gca, 'FontSize',8)
 end
 
 

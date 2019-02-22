@@ -216,7 +216,10 @@ dpPropErrorClamp_plotGroup(E, 'hand', 'RB', [0 774 -15 35], 'b')
 dpPropErrorClamp_plotGroup(E, 'prop_theta', 'PB', [0 774 -15 35], 'r')
 
 title('Hand and proprioceptive angle');
-xlabel('Trial'); ylabel('Hand Angle/Proprioceptive estimate (º)')
+
+xlabel('Trial number'); 
+yyaxis left; ylabel('Heading angle (º)');set(gca,'ycolor',[0 0 0.9],'ylim',[-15 30]) 
+yyaxis right; ylabel('Proprioceptive bias (º)');set(gca,'ycolor',[0.9 0 0],'ylim',[-15 30]) 
 
 % print(sprintf('%E2_Group_Hand_%s',figDir,date),'-painters','-dpdf')
 print(sprintf('%sE2_Group_Hand_%s',figDir,date),'-painters','-djpeg')
@@ -257,13 +260,22 @@ end
 print(sprintf('%sE2_corr_Matrix_%s',figDir,date),'-painters','-djpeg')
 
 %% Plot specific correlation
-plot_correlation(summaryMatrix, 'dispAll', 'asymptote')
-set(gcf,'units','centimeters','pos',[5 5 15 15]);
+figure; set(gcf,'units','centimeters','pos',[5 5 25 7]);
 
-xlabel('Dispersion (mm)'); ylabel('Asymptote (deg)');
+subplot(1,3,1)
+plot_correlation(summaryMatrix, 'dispAll', 'asymptote')
+xlabel('Dispersion (mm)'); ylabel('Asymptote (º)');
+
+subplot(1,3,2)
+plot_correlation(summaryMatrix, 'propShiftTheta', 'asymptote')
+xlabel('Proprioceptive Shift (º)'); ylabel('Asymptote (º)');
+
+subplot(1,3,3)
+plot_correlation(summaryMatrix, 'dispAll', 'propShiftTheta')
+xlabel('Dispersion (mm)'); ylabel('Proprioceptive Shift (º)');
 
 % print(sprintf('%E2_disp_vs_asymp_%s',figDir,date),'-painters','-dpdf')
-print(sprintf('%sE2_disp_vs_asymp_%s',figDir,date),'-painters','-djpeg')
+print(sprintf('%sE2_CorrelationPlots_%s',figDir,date),'-painters','-djpeg')
 
 %% Plot specific correlation
 plot_correlation(summaryMatrix, 'propShiftTheta', 'asymptote')
@@ -307,4 +319,11 @@ end
 xticks = 1:length(barVarNames);
 set(gca,'xTick',xticks,'xticklabel',barVarNames,'ylim',[-30 60],'xticklabelrotation',45)
 
+%% STATS
+
+fprintf('\n\nE2 Asymptote mean: %.3f \n',nanmean(summaryMatrix.asymptote))
+ttest1(summaryMatrix.asymptote, 0, 2, 'onesample');
+
+fprintf('\n\nE2 PropShift mean: %.3f \n',nanmean(summaryMatrix.propShiftTheta))
+ttest1(summaryMatrix.propShiftTheta, 0, 2, 'onesample');
 

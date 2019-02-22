@@ -343,7 +343,7 @@ end
 % print(sprintf('%E1_corr_Matrix_%s',figDir,date),'-painters','-dpdf')
 print(sprintf('%sE1_corr_Matrix_%s',figDir,date),'-painters','-djpeg')
 
-%% Plot Dispersion vs Aftereffect
+%% Plot Correlation figures
 figure; set(gcf,'units','centimeters','pos',[5 5 25 7]);
 
 subplot(1,3,1)
