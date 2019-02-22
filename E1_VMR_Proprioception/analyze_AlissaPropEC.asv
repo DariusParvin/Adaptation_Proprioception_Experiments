@@ -1,10 +1,10 @@
-%% Set directory
+%% Load and clean Data
 clearvars
-addpath(genpath('..'))
+addpath(genpath('..')) % adding functions to path
+
 % save figures here
 figDir = '../Figures/';
 
-%% Load and clean Data
 load('pre-processed_data/AlissaPropEC_trials.mat')
 
 K_subj_names = {'PropVMR_602A__S53A', 'PropVMR_602A__S54A', ... % begin day 1
@@ -190,7 +190,10 @@ set(gcf,'units','centimeters','pos',[5 5 20 10]);
 dpPropVMR_plotGroup(E, 'hand', 'RB', [0 max(E.TN) -15 35], 'b')
 dpPropVMR_plotGroup(E, 'prop_theta', 'PB', [0 max(E.TN) -15 35], 'r')
 
-xlabel('Trial'); ylabel('Hand Angle/Proprioceptive estimate (º)')
+xlabel('Trial number'); 
+yyaxis left; ylabel('Heading angle (º)');set(gca,'ycolor',[0 0 0.9],'ylim',[-12 32]) 
+yyaxis right; ylabel('Proprioceptive bias (º)');set(gca,'ycolor',[0.9 0 0],'ylim',[-12 32]) 
+
 
 % print(sprintf('%E1_Group_Hand_%s',figDir,date),'-painters','-dpdf')
 print(sprintf('%sE1_Group_day%d_%s',figDir,day,date),'-painters','-djpeg')
@@ -214,7 +217,7 @@ for si = 1:length(subj)
         rotCond(sdi,1) = mean(E.rot_cond(subj_day_idx,1));
         
         % Adaptation dependent variables
-        afterEffect(sdi,1) = nanmean( E.hand( subj_day_idx & E.CN >= 77  & E.CN <= 77 ) ); % last aftereffect
+        afterEffect(sdi,1) = nanmean( E.hand( subj_day_idx & E.CN >= 77  & E.CN <= 77 ) ); % aftereffect after rotation
 %         afterEffect(sdi,1) = nanmean( E.hand( subj_day_idx & (E.CN == 62 | E.CN == 77 | E.CN == 84 ) ) ); % last aftereffect
 
         % Proprioceptive shift
@@ -233,13 +236,12 @@ for si = 1:length(subj)
         disp_idx=[];
 %         disp_idx = subj_day_idx & ~isnan(E.PB);
         disp_idx = subj_day_idx & E.PB > 2 ;
-        dispAll(sdi,1) = dispersion( E.FC_bias_X(disp_idx), E.FC_bias_Y(disp_idx));
-        dispAll2(sdi,1) = dispersion2(E.FC_bias_X(block1_idx), E.FC_bias_Y(block1_idx), E.FC_bias_X(disp_idx), E.FC_bias_Y(disp_idx));
+        dispAll(sdi,1) = dispersion2(E.FC_bias_X(block1_idx), E.FC_bias_Y(block1_idx), E.FC_bias_X(disp_idx), E.FC_bias_Y(disp_idx));
     end
 end
 % Summary table
 % reliabilityMatrix = table(afterEffect, propShiftX, propShiftTheta, dispBlock1, dispAll);
-reliabilityMatrix = table(dispBlock1, afterEffect, propShiftTheta, dispAll, dispAll2);
+reliabilityMatrix = table(afterEffect, propShiftTheta, dispAll);
 
 day1Matrix = reliabilityMatrix(Day==1,:);
 day2Matrix = reliabilityMatrix(Day==2,:);
@@ -284,7 +286,7 @@ summaryBar = [summaryMatrix subjCond];
 
 %% PLOT RELIABILITY CORRELATION MATRIX
 clearvars -except T* K* summary* day* figDir* 
-figure; set(gcf,'units','centimeters','pos',[5 5 30 20]);
+figure; set(gcf,'units','centimeters','pos',[5 5 20 7]);
 
 varnames = day1Matrix.Properties.VariableNames;
 for vi = 1:length(varnames) % loop over hand angle columns
@@ -306,11 +308,11 @@ for vi = 1:length(varnames) % loop over hand angle columns
     [rho,pval] = corrcoef(x,y);
     str = sprintf('r = %.3f, p = %.3f',rho(1,2),pval(1,2) );
     %     text(xlim(1),ylim(2),str)
-    text(0.05,0.9,str,'Units','normalized','FontSize',10)
+    text(0.05,0.9,str,'Units','normalized','FontSize',8,'FontWeight','Bold')
     title(sprintf('%s',varnames{vi}) );
     xlabel('Day 1');
     ylabel('Day 2');
-    set(gca, 'FontName', 'Arial', 'FontSize',12);
+    set(gca, 'FontName', 'Arial', 'FontSize',8);
 end
 
 % print(sprintf('%E1_reliability_%s',figDir,date),'-painters','-dpdf')
@@ -341,9 +343,28 @@ end
 % print(sprintf('%E1_corr_Matrix_%s',figDir,date),'-painters','-dpdf')
 print(sprintf('%sE1_corr_Matrix_%s',figDir,date),'-painters','-djpeg')
 
-%% Plot specific correlation
+%% Plot Dispersion vs Aftereffect
 dpPropVMR_plot_correlation(summaryMatrix, 'dispAll', 'afterEffect')
-set(gcf,'units','centimeters','pos',[5 5 15 15]);
+set(gcf,'units','centimeters','pos',[5 5 7 7]);
+set(gca,'FontSize',8)
+xlabel('Dispersion (mm)'); ylabel('After effect (deg)');
+
+% print(sprintf('%E1_disp_vs_asymp_%s',figDir,date),'-painters','-dpdf')
+print(sprintf('%sE1_disp_vs_asymp_%s',figDir,date),'-painters','-djpeg')
+
+%% Plot Dispersion vs Aftereffect
+figure; set(gcf,'units','centimeters','pos',[5 5 25 7]);
+
+subplot(1,3,1)
+dpPropVMR_plot_correlation(summaryMatrix, 'dispAll', 'afterEffect')
+xlabel('Dispersion (mm)'); ylabel('After effect (º)');
+
+subplot(1,3,2)
+dpPropVMR_plot_correlation(summaryMatrix, 'propShiftTheta', 'afterEffect')
+xlabel('Proprioceptive Shift (º)'); ylabel('After effect (deg)');
+
+subplot(1,3,3)
+dpPropVMR_plot_correlation(summaryMatrix, 'dispAll', 'afterEffect')
 xlabel('Dispersion (mm)'); ylabel('After effect (deg)');
 
 % print(sprintf('%E1_disp_vs_asymp_%s',figDir,date),'-painters','-dpdf')
@@ -385,6 +406,56 @@ for vi = 1:length(barVarNames)
     dataPoints = summaryBar.(barVarNames{vi});
     dpPlotBar(vi, dataPoints );
 end
-
 xticks = [1:6];
 set(gca,'xTick',xticks,'xticklabel',barVarNames,'ylim',[-30 60],'xticklabelrotation',45);
+
+%% Might not use - BAR GRAPHS Split by day
+
+figure;set(gcf,'units','centimeters','pos',[5 10 5 5]);
+    
+barVarNames = day1Matrix.Properties.VariableNames;
+xpos = [1 2 4 5 7 8 10 11 13 14 16 17];
+faceColors = [.7 .7 1; 1 0 0; 1 0.8 0];
+
+for vi = 1:2
+%     subplot(1,length(barVarNames),vi);
+    % plot day 1 and day 2 bar
+    y1 = day1Matrix.(barVarNames{vi});
+    dpPlotBar2(xpos(vi*2 - 1), y1, faceColors(vi,:));
+    y2 = day2Matrix.(barVarNames{vi});
+    dpPlotBar2(xpos(vi*2), y2, faceColors(vi,:));
+    % individual subject lines
+    x1 = repmat( xpos(vi*2 - 1),length(y1),1);
+    x2 = repmat( xpos(vi*2),length(y1),1);
+%     plot([x1 x2]',[y1 y2]','color',[.3 .3 .3],'linewidth',0.1);
+end
+
+% Aesthetics
+xticks = [1.5 4.5 7.5 10.5 13.5 16.5];
+% set(gca,'xTick',xticks,'xticklabel',barVarNames,'ylim',[-5 28],'xticklabelrotation',45);
+set(gca,'xTick',xticks,'xticklabel',{'Aftereffect','Proprioceptive shift'},...
+    'xticklabelrotation',45,'ylim',[-5 28]);
+ylabel('degrees');
+
+%% STATS
+
+% fprintf('ttest to see if proprioceptive shift is significant')
+% ttest1(summaryBar.propShiftTheta, 0, 2, 'onesample')
+
+% Day1 & Day 2 Aftereffects
+fprintf('\n\nDay 1 Aftereffect mean: %.3f \n',nanmean(day1Matrix.afterEffect))
+ttest1(day1Matrix.afterEffect, 0, 2, 'onesample');
+
+fprintf('\n\nDay 2 Aftereffect mean: %.3f \n',nanmean(day2Matrix.afterEffect))
+ttest1(day2Matrix.afterEffect, 0, 2, 'onesample');
+
+% Day1 & Day 2 Proprioceptive Shift
+fprintf('\n\nDay 1 Proprioceptive Shift mean: %.3f \n',nanmean(day1Matrix.propShiftTheta))
+ttest1(day1Matrix.propShiftTheta, 0, 2, 'onesample');
+
+fprintf('\n\nDay 2 Proprioceptive Shift mean: %.3f \n',nanmean(day2Matrix.propShiftTheta))
+ttest1(day2Matrix.propShiftTheta, 0, 2, 'onesample');
+
+
+
+

@@ -1,11 +1,10 @@
-function dpPropVMR_plotGroup(data, varToPlot, blocksToPlot, axisLim, lineCol)
+function ax = dpPropVMR_plotGroup(data, varToPlot, blocksToPlot, axisLim, lineCol)
 
 % data = data in table format
 % varToPlot = y variable
 % blocksToPlot = x variable - reaching blocks ( 'RB' ) or proprioceptive blocks ( 'PB' )
 % axisLim = axis limits in the format [xmin xmax ymin ymax]
 % lineCol = line color e.g. 'r'
-
 
 % Get x data
 blocksToPlot = {blocksToPlot};
@@ -42,9 +41,9 @@ blockLines = [5.5 10.5 20.5 70.5 160.5 165.5 195.5 235.5 265.5 305.5 310.5 340.5
 drawline1(blockLines , 'dir', 'vert', 'linestyle', ':');  % Draws line for blocks
 
 % Shade the no feedback trials
-no_fb_base =patch([0 5.5 5.5 0],[min(ylim) min(ylim) max(ylim) max(ylim)],zeros(1,4));
+no_fb_base =patch([0 10.5 10.5 0],[min(ylim) min(ylim) max(ylim) max(ylim)],zeros(1,4));
 set(no_fb_base,'facecolor',[0 0 0]); set(no_fb_base,'edgealpha',0);
-alpha(no_fb_base,0.1)
+alpha(no_fb_base,0.05)
 
 end
 
