@@ -115,7 +115,7 @@ fig_ref_lines = [5.5 10.5 20.5 70.5 160.5 165.5 195.5 235.5 265.5 305.5 310.5 34
 %% Individual subject, every trial
 close all;
 E = T3;
-E.PB(isnan(E.PB)) = 0; % so that the 'split' function works
+E.PB(isnan(E.PB)) = 0; % Cheap hack so that the split function works
 day = 2; % day 1 or 2
 
 subjs = unique(E.SN);
@@ -124,7 +124,6 @@ subjs = unique(E.SN);
 for i = 1 % subj to plot
     indx = (E.SN == subjs(i) & E.day_num == day);
 
-    
     figure('units','centimeters','pos',[1 5 20 20]);hold on;
     subplot(2,2,1:2); hold on;
     str = sprintf('Hand angle and Proprioceptive estimates for subj %d, day %d', subjs(i), day);
@@ -152,11 +151,14 @@ for i = 1 % subj to plot
     % All proprioceptive estimates in absolute space
     x3 = E.FC_bias_X(indx);
     y3 = E.FC_bias_Y(indx);
+    %     x3 = E.FC_X(indx);
+    %     y3 = E.FC_Y(indx);
     Prop_block = E.PB(indx);
     scatterplot(x3,y3,'split',Prop_block,'leg','auto' );
     % Fig labels
     axis('square');
     xlabel('mm'); ylabel('mm')
+
 
     subplot(2,2,4); title('Mean Proprioceptive Bias'); hold on;
     % Mean Proprioceptive estimate per block
