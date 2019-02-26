@@ -144,7 +144,7 @@ for i = 1 % subj to plot
     set(no_fb_base,'facecolor',[0 0 0]); set(no_fb_base,'edgealpha',0);
     alpha(no_fb_base,0.1)
     % Fig labels
-    xlabel('Trial'); ylabel('Hand Angle/Proprioceptive estimate (บ)')
+    xlabel('Trial'); ylabel('Hand Angle/Proprioceptive estimate (ยบ)')
 
     subplot(2,2,3); title('Proprioceptive estimates'); hold on;
     % All proprioceptive estimates in absolute space
@@ -191,8 +191,8 @@ dpPropVMR_plotGroup(E, 'hand', 'RB', [0 max(E.TN) -15 35], 'b')
 dpPropVMR_plotGroup(E, 'prop_theta', 'PB', [0 max(E.TN) -15 35], 'r')
 
 xlabel('Trial number'); 
-yyaxis left; ylabel('Heading angle (บ)');set(gca,'ycolor',[0 0 0.9],'ylim',[-12 32]) 
-yyaxis right; ylabel('Proprioceptive bias (บ)');set(gca,'ycolor',[0.9 0 0],'ylim',[-12 32]) 
+yyaxis left; ylabel('Heading angle (ยบ)');set(gca,'ycolor',[0 0 0.9],'ylim',[-12 32]) 
+yyaxis right; ylabel('Proprioceptive bias (ยบ)');set(gca,'ycolor',[0.9 0 0],'ylim',[-12 32]) 
 
 
 % print(sprintf('%E1_Group_Hand_%s',figDir,date),'-painters','-dpdf')
@@ -348,15 +348,15 @@ figure; set(gcf,'units','centimeters','pos',[5 5 25 7]);
 
 subplot(1,3,1)
 dpPropVMR_plot_correlation(summaryMatrix, 'dispAll', 'afterEffect')
-xlabel('Dispersion (mm)'); ylabel('After effect (บ)');
+xlabel('Dispersion (mm)'); ylabel('After effect (ยบ)');
 
 subplot(1,3,2)
 dpPropVMR_plot_correlation(summaryMatrix, 'propShiftTheta', 'afterEffect')
-xlabel('Proprioceptive Shift (บ)'); ylabel('After effect (บ)');
+xlabel('Proprioceptive Shift (ยบ)'); ylabel('After effect (ยบ)');
 
 subplot(1,3,3)
 dpPropVMR_plot_correlation(summaryMatrix, 'dispAll', 'propShiftTheta')
-xlabel('Dispersion (mm)'); ylabel('Proprioceptive Shift (บ)');
+xlabel('Dispersion (mm)'); ylabel('Proprioceptive Shift (ยบ)');
 
 % print(sprintf('%E1_disp_vs_asymp_%s',figDir,date),'-painters','-dpdf')
 print(sprintf('%sE1_CorrelationPlots_%s',figDir,date),'-painters','-djpeg')
