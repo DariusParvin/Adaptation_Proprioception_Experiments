@@ -118,7 +118,7 @@ for i = 29
     set(no_fb_base,'facecolor',[0 0 0]); set(no_fb_base,'edgealpha',0);
     alpha(no_fb_base,0.1)
     % Fig labels
-    xlabel('Trial'); ylabel('Hand Angle/Proprioceptive estimate (บ)')
+    xlabel('Trial'); ylabel('Hand Angle/Proprioceptive estimate (ยบ)')
     
     subplot(2,2,3); title('Proprioceptive estimates'); hold on;
     % All proprioceptive estimates in absolute space
@@ -204,8 +204,8 @@ dpPropErrorClamp_plotGroup(E, 'prop_theta', 'PB', [0 774 -15 35], 'r')
 title('Hand and proprioceptive angle');
 
 xlabel('Trial number'); 
-yyaxis left; ylabel('Heading angle (บ)');set(gca,'ycolor',[0 0 0.9],'ylim',[-15 30]) 
-yyaxis right; ylabel('Proprioceptive bias (บ)');set(gca,'ycolor',[0.9 0 0],'ylim',[-15 30]) 
+yyaxis left; ylabel('Heading angle (ยบ)');set(gca,'ycolor',[0 0 0.9],'ylim',[-15 30]) 
+yyaxis right; ylabel('Proprioceptive bias (ยบ)');set(gca,'ycolor',[0.9 0 0],'ylim',[-15 30]) 
 
 % print(sprintf('%E2_Group_Hand_%s',figDir,date),'-painters','-dpdf')
 print(sprintf('%sE2_Group_Hand_%s',figDir,date),'-painters','-djpeg')
@@ -250,15 +250,15 @@ figure; set(gcf,'units','centimeters','pos',[5 5 25 7]);
 
 subplot(1,3,1)
 plot_correlation(summaryMatrix, 'dispAll', 'asymptote')
-xlabel('Dispersion (mm)'); ylabel('Asymptote (บ)');
+xlabel('Dispersion (mm)'); ylabel('Asymptote (ยบ)');
 
 subplot(1,3,2)
 plot_correlation(summaryMatrix, 'propShiftTheta', 'asymptote')
-xlabel('Proprioceptive Shift (บ)'); ylabel('Asymptote (บ)');
+xlabel('Proprioceptive Shift (ยบ)'); ylabel('Asymptote (ยบ)');
 
 subplot(1,3,3)
 plot_correlation(summaryMatrix, 'dispAll', 'propShiftTheta')
-xlabel('Dispersion (mm)'); ylabel('Proprioceptive Shift (บ)');
+xlabel('Dispersion (mm)'); ylabel('Proprioceptive Shift (ยบ)');
 
 % print(sprintf('%E2_disp_vs_asymp_%s',figDir,date),'-painters','-dpdf')
 print(sprintf('%sE2_CorrelationPlots_%s',figDir,date),'-painters','-djpeg')
