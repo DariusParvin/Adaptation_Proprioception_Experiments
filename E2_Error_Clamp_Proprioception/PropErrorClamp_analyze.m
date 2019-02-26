@@ -10,7 +10,7 @@ elseif ismac
 end
 
 % % Real data only
-K_subj_names = {'PropEC_622C__J9','PropEC_622A__ j5_a',... % First two are RAs that were usable data
+fig_subj_names = {'PropEC_622C__J9','PropEC_622A__ j5_a',... % First two are RAs that were usable data
     'PropEC_905C_1_J1', 'PropEC_905A_1_J2_a', 'PropEC_905C__J3_a', 'PropEC_905A__J4_a',...
     'PropEC_905C__J5_a', 'PropEC_905A__J6_a', 'PropEC_905C__J7_a', 'PropEC_905A__J8_a',...
     'PropEC_905C__J9_a','PropEC_905A__J10_a', 'PropEC_905C__J11_a','PropEC_905A__J12_b',...
@@ -20,9 +20,8 @@ K_subj_names = {'PropEC_622C__J9','PropEC_622A__ j5_a',... % First two are RAs t
     'PropEC_905C__J25_a','PropEC_905A__J18_b','PropEC_905A__J26_a', 'PropEC_905C__J27_a',...
     'PropEC_905C__J28_a','PropEC_905A__J29'};
 
-
 % Check that # of subject names == # of subjects in datafile
-if length(K_subj_names) ~= length(unique(T.SN))
+if length(fig_subj_names) ~= length(unique(T.SN))
     error('please_copy_in_subject_names')
 end
 
@@ -34,6 +33,9 @@ T(:, T.Properties.VariableNames(remove_vars)) = [];
 
 prop_vars = {'FC_bias_X', 'FC_bias_Y', 'prop_theta'};
 
+fig_reference_lines = [9.5 36.5 72.5 108.5 144.5 180.5 270.5 360.5 396.5 486.5 522.5 612.5 648.5 738.5]; % off-set to avoid lines going over data points
+
+% ---------------------------- PRE PROCESSING ----------------------------
 % T1 REMOVE OUTLIERS
 T1 = T;
 outlier_idx = abs(T1.hand) > 90 ; % Remove trials greater than x degrees
@@ -45,7 +47,6 @@ T1.hand(outlier_idx, 1) = nan; % Flip trials .*(-1)
 T2 = T1;
 flip_idx = T2.rot_cond > 0; % CW condition index   % Change to 'rot_cond' eventually
 T2.hand(flip_idx, 1) = T1.hand(flip_idx, 1).*(-1); % Flip trials .*(-1)
-
 
 % flip proprioceptive related variables
 T2.prop_theta(flip_idx) = T2.prop_theta(flip_idx).*(-1);
@@ -86,28 +87,18 @@ for SN = unique(T3.SN)'
     end
 end
 
-K_lines_all_trials = [9.5 36.5 72.5 108.5 144.5 180.5 270.5 360.5 396.5 486.5 522.5 612.5 648.5 738.5]; % off-set to avoid lines going over data points
-
-% FOR REFERENCE
-% % % In cycles
-% % % Proprioceptive = 1
-% % % No fb baseline = 2:4
-% % % fb baseline = 5:12
-
-% Figure lines for block divisions
-
 %% Every subject every trial
-clearvars -except T* K* fig*
+clearvars -except T* fig*
 close all;
 E = T3;
-E.PB(isnan(E.PB)) = 0; % Cheap hack so that the split function works
+E.PB(isnan(E.PB)) = 0; % So that the 'split' function works
 
 subjs = unique(E.SN);
 
 % for i = 25:length(subjs)
-for i = 29
-    
+for i = 29    
     figure('units','centimeters','pos',[1 5 20 20]);hold on;
+
     subplot(2,2,1:2); hold on;
     str = sprintf('Hand angle and Proprioceptive estimates for subj %d', subjs(i));
     title(str);
@@ -121,7 +112,7 @@ for i = 29
     scatter(x2,y2,10,'filled');
     % Reference lines
     drawline1(0, 'dir', 'horz', 'linestyle', '-'); % Draws line at target
-    drawline1(K_lines_all_trials, 'dir', 'vert', 'linestyle', ':');  % Draws line for blocks
+    drawline1(fig_reference_lines, 'dir', 'vert', 'linestyle', ':');  % Draws line for blocks
     % Shade the no feedback trials
     no_fb_base =patch([9.5 36.5 36.5 9.5],[min(ylim) min(ylim) max(ylim) max(ylim)],zeros(1,4));
     set(no_fb_base,'facecolor',[0 0 0]); set(no_fb_base,'edgealpha',0);
@@ -133,15 +124,12 @@ for i = 29
     % All proprioceptive estimates in absolute space
     x3 = E.FC_bias_X(E.SN == subjs(i));
     y3 = E.FC_bias_Y(E.SN == subjs(i));
-    %     x3 = E.FC_X(E.SN == subjs(i));
-    %     y3 = E.FC_Y(E.SN == subjs(i));
     Prop_block = E.PB(E.SN == subjs(i));
     scatterplot(x3,y3,'split',Prop_block,'leg','auto' );
     % Fig labels
     axis('square');
     xlabel('mm'); ylabel('mm')
-    
-    
+        
     subplot(2,2,4); title('Mean Proprioceptive Bias'); hold on;
     % Mean Proprioceptive estimate per block
     x3=[]; y3=[];
@@ -152,11 +140,9 @@ for i = 29
     end
     cmap = jet(length(x3)); % Color map
     scatter(x3,y3,40,cmap,'filled');
-    text(x3,y3,{'   bnf','   bf','   c1','   c2','   c3','   c4'}) % Label points
-    
+    text(x3,y3,{'   bnf','   bf','   c1','   c2','   c3','   c4'}) % Label points    
     % Fig labels
     scatter(0,0,80,'k.') % Target reference (0,0)
-    %     axis([-30 30 -30 30]);
     axis('square');
     xlabel('mm'); ylabel('mm')
 end
@@ -165,7 +151,7 @@ end
 print(sprintf('%sE2egSubj_%s',figDir,date),'-painters','-djpeg')
 
 %% Create Subject summary table
-clearvars -except T* K* fig*
+clearvars -except T* fig*
 E = T3;
 % E = E(E.rot_cond>0, :);
 subj = unique(E.SN);
@@ -225,7 +211,7 @@ yyaxis right; ylabel('Proprioceptive bias (º)');set(gca,'ycolor',[0.9 0 0],'ylim
 print(sprintf('%sE2_Group_Hand_%s',figDir,date),'-painters','-djpeg')
 
 %% Plot Group average ST/RT/MT etc
-% % clearvars -except T* K*
+% % clearvars -except T*
 % E = T3;
 % 
 % figure; hold on;
