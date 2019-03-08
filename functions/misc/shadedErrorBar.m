@@ -147,8 +147,8 @@ H.patch=patch(xP,yP,1,'facecolor',patchColor,...
 
 
 %Make pretty edges around the patch. 
-H.edge(1)=plot(x,lE,'-','color',edgeColor);
-H.edge(2)=plot(x,uE,'-','color',edgeColor);
+% H.edge(1)=plot(x,lE,'-','color',edgeColor);
+% H.edge(2)=plot(x,uE,'-','color',edgeColor);
 
 %Now replace the line (this avoids having to bugger about with z coordinates)
 delete(H.mainLine)
