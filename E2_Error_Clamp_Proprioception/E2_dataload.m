@@ -24,8 +24,8 @@ startofclamp = 184;
 
 %%% look for table. if it's there, we will append stuff. look to see how
 %%% many subjects are in existing table. 
-if (exist('pre-processed_data\PropErrorClamp_trials.mat') & exist('pre-processed_data\PropErrorClamp_movefile.mat')) == 1
-    load('pre-processed_data\PropErrorClamp_trials.mat'); load('pre-processed_data\PropErrorClamp_movefile.mat')
+if (exist('pre-processed_data\E2_trials.mat') & exist('pre-processed_data\E2_movefile.mat')) == 1
+    load('pre-processed_data\E2_trials.mat'); load('pre-processed_data\E2_movefile.mat')
     T=T;
     M=M;
     num_tested_subj=numel(unique(T.SN));
@@ -112,7 +112,7 @@ for s = num_tested_subj+1:length(subj)
         ii = [1, find(moveidx1+moveidx2)+1];    % indices of when there is new sample
         Nii(k) = length(ii);
         S.hx(k,1:Nii(k)) = S.hand_x(k,ii)*pixel2mm;
-        S.hy(k,1:Nii(k)) = S.hand_y(k,ii)*pixel2mm;
+        S.hy(k,1:Nii(k)) = S.hand_y(k,ii)*pixel2mm + 80; % '+80' to compensate for the start position being at -80
         S.hdist(k,1:Nii(k)) = S.hand_dist(k,ii)*pixel2mm;
         S.trialt(k,1:Nii(k)) = S.trialtime(k,ii);
         
@@ -339,7 +339,7 @@ minutes = floor(mean_elapsed_experiment_time)
 seconds = 60*(mean_elapsed_experiment_time  - floor(mean_elapsed_experiment_time) )
 
 
-save('pre-processed_data\PropErrorClamp_trials.mat','T');
-save('pre-processed_data\PropErrorClamp_movefile.mat','M');
+save('pre-processed_data\E2_trials.mat','T');
+save('pre-processed_data\E2_movefile.mat','M');
 toc
 

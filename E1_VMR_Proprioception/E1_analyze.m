@@ -5,7 +5,8 @@ addpath(genpath('..')) % adding functions to path
 % save figures here
 figDir = '../Figures/';
 
-load('pre-processed_data/AlissaPropEC_trials.mat')
+load('pre-processed_data/E1_trials.mat')
+% load('pre-processed_data/AlissaPropEC_trials.mat')
 
 fig_subj_names = {'PropVMR_602A__S53A', 'PropVMR_602A__S54A', ... % begin day 1
     'PropVMR_602A__S55A', 'PropVMR_602A__S56A', ...
@@ -48,7 +49,9 @@ end
 
 prop_vars = {'FC_bias_X', 'FC_bias_Y', 'prop_theta'};
 
-T.hand = T.hand_theta;
+% T.hand = T.hand_theta;
+T.hand = T.hand_theta_maxv;
+T.hand(~isnan(T.PB)) = nan;
 remove_vars = {'hand_theta','hand_theta_maxv','hand_theta_maxradv','handMaxRadExt','hand_theta_50'};
 T(:, T.Properties.VariableNames(remove_vars)) = [];
 
@@ -56,7 +59,7 @@ T(:, T.Properties.VariableNames(remove_vars)) = [];
 % T1 REMOVE OUTLIERS
 T1 = T;
 outlier_idx = abs(T1.hand) > 90 ; % Remove trials greater than x degrees
-fprintf('Outlier trials removed: %d \n' , sum(outlier_idx))
+fprintf('Outlier trials removed: %d = %.2f%% \n' , [sum(outlier_idx)], [sum(outlier_idx)]*100/height(T) )
 T1.hand(outlier_idx, 1) = nan; % Flip trials .*(-1)
 
 
@@ -92,7 +95,7 @@ for SN = unique(T3.SN)'
     end
 end
 
-prop_baseCN = 11:14; %%%% Proprioceptive Baseline cycles to subtract
+prop_baseCN = 5:14; %%%% Proprioceptive Baseline cycles to subtract
 % prop_baseCN = 5:8; %%%% Proprioceptive Baseline cycles to subtract
 prop_base_idx = T3.CN >= min(prop_baseCN) & T3.CN <= max(prop_baseCN); % index of baseline cycles
 prop_base_mean = varfun(@nanmean,T2(prop_base_idx ,:),'GroupingVariables',{'SN','day_num','PropTestAng'},'OutputFormat','table');
@@ -181,7 +184,7 @@ end
 print(sprintf('%sE1egSubj_%s',figDir,date),'-painters','-djpeg')
 
 %% Group hand angle and proprioceptive bias
-day = 1;
+day = 2;
 E = T3(T3.day_num  == day, :); %day 1 or 2
 figure; hold on;
 set(gcf,'units','centimeters','pos',[5 5 20 10]);
@@ -189,9 +192,13 @@ set(gcf,'units','centimeters','pos',[5 5 20 10]);
 dpPropVMR_plotGroup(E, 'hand', 'RB', [0 max(E.TN) -15 35], 'b')
 dpPropVMR_plotGroup(E, 'prop_theta', 'PB', [0 max(E.TN) -15 35], 'r')
 
+
+text(75,30,'Reaching hand angle','FontSize',8,'Color','b');
+text(75,-5,'Proprioceptive shift','FontSize',8,'Color','r');
+
 xlabel('Trial number'); 
-yyaxis left; ylabel('Heading angle (ยบ)');set(gca,'ycolor',[0 0 0.9],'ylim',[-12 32]) 
-yyaxis right; ylabel('Proprioceptive bias (ยบ)');set(gca,'ycolor',[0.9 0 0],'ylim',[-12 32]) 
+yyaxis left; ylabel('Hand angle (บ)');set(gca,'ycolor',[0 0 0.9],'ylim',[-12 32]) 
+yyaxis right; ylabel('Proprioceptive shift (บ)');set(gca,'ycolor',[0.9 0 0],'ylim',[-12 32]) 
 
 
 % print(sprintf('%E1_Group_Hand_%s',figDir,date),'-painters','-dpdf')
@@ -217,14 +224,31 @@ for si = 1:length(subj)
         
         % Adaptation dependent variables
         afterEffect(sdi,1) = nanmean( E.hand( subj_day_idx & E.CN >= 77  & E.CN <= 77 ) ); % aftereffect after rotation
-%         afterEffect(sdi,1) = nanmean( E.hand( subj_day_idx & (E.CN == 62 | E.CN == 77 | E.CN == 84 ) ) ); % last aftereffect
+        
+        AE1(sdi,1) = nanmean( E.hand( subj_day_idx & E.CN >= 33  & E.CN <= 33 ) ); % aftereffect after rotation
+        AE2(sdi,1) = nanmean( E.hand( subj_day_idx & E.CN >= 62  & E.CN <= 62 ) ); % aftereffect after rotation
+        AE3(sdi,1) = nanmean( E.hand( subj_day_idx & E.CN >= 77  & E.CN <= 77 ) ); % aftereffect after rotation
+        AE4(sdi,1) = nanmean( E.hand( subj_day_idx & E.CN >= 84  & E.CN <= 84 ) ); % aftereffect after rotation
+        
 
         % Proprioceptive shift
-        shift_idx = subj_day_idx & E.PB > 2 ;
+        shift_idx = subj_day_idx & E.PB > 1 ;
         base_idx = subj_day_idx & E.PB == 1 ;
         propShiftX(sdi,1) = nanmean(E.FC_bias_X(shift_idx)) - nanmean(E.FC_bias_X(base_idx));
               
         propShiftTheta(sdi,1) = centroidAngle( E.FC_bias_X(shift_idx), E.FC_bias_Y(shift_idx)) - ...
+                            centroidAngle( E.FC_bias_X(base_idx), E.FC_bias_Y(base_idx));                        
+                        
+        propShift1(sdi,1) = centroidAngle( E.FC_bias_X(subj_day_idx & E.PB == 2), E.FC_bias_Y(subj_day_idx & E.PB == 2)) - ...
+                            centroidAngle( E.FC_bias_X(base_idx), E.FC_bias_Y(base_idx));
+                        
+        propShift2(sdi,1) = centroidAngle( E.FC_bias_X(subj_day_idx & E.PB == 3), E.FC_bias_Y(subj_day_idx & E.PB == 3)) - ...
+                            centroidAngle( E.FC_bias_X(base_idx), E.FC_bias_Y(base_idx));
+                        
+        propShift3(sdi,1) = centroidAngle( E.FC_bias_X(subj_day_idx & E.PB == 4), E.FC_bias_Y(subj_day_idx & E.PB == 4)) - ...
+                            centroidAngle( E.FC_bias_X(base_idx), E.FC_bias_Y(base_idx));
+                        
+        propShift4(sdi,1) = centroidAngle( E.FC_bias_X(subj_day_idx & E.PB == 5), E.FC_bias_Y(subj_day_idx & E.PB == 5)) - ...
                             centroidAngle( E.FC_bias_X(base_idx), E.FC_bias_Y(base_idx));
                         
         % Proprioceptive dispersion
@@ -238,8 +262,12 @@ for si = 1:length(subj)
         dispAll(sdi,1) = dispersion2(E.FC_bias_X(block1_idx), E.FC_bias_Y(block1_idx), E.FC_bias_X(disp_idx), E.FC_bias_Y(disp_idx));
     end
 end
+
+% AE and Prop Shift table
+AE_table = table(SN, Day, AE1, AE2, AE3, AE4);
+Prop_table = table(SN, Day, propShift1, propShift2, propShift3, propShift4);
+
 % Summary table
-% reliabilityMatrix = table(afterEffect, propShiftX, propShiftTheta, dispBlock1, dispAll);
 reliabilityMatrix = table(afterEffect, propShiftTheta, dispAll);
 
 day1Matrix = reliabilityMatrix(Day==1,:);
@@ -347,15 +375,15 @@ figure; set(gcf,'units','centimeters','pos',[5 5 25 7]);
 
 subplot(1,3,1)
 dpPropVMR_plot_correlation(summaryMatrix, 'dispAll', 'afterEffect')
-xlabel('Dispersion (mm)'); ylabel('After effect (ยบ)');
+xlabel('Dispersion (mm)'); ylabel('After effect (บ)');
 
 subplot(1,3,2)
 dpPropVMR_plot_correlation(summaryMatrix, 'propShiftTheta', 'afterEffect')
-xlabel('Proprioceptive Shift (ยบ)'); ylabel('After effect (ยบ)');
+xlabel('Proprioceptive Shift (ยบ)'); ylabel('After effect (บ)');
 
 subplot(1,3,3)
 dpPropVMR_plot_correlation(summaryMatrix, 'dispAll', 'propShiftTheta')
-xlabel('Dispersion (mm)'); ylabel('Proprioceptive Shift (ยบ)');
+xlabel('Dispersion (mm)'); ylabel('Proprioceptive Shift (บ)');
 
 % print(sprintf('%E1_disp_vs_asymp_%s',figDir,date),'-painters','-dpdf')
 print(sprintf('%sE1_CorrelationPlots_%s',figDir,date),'-painters','-djpeg')
@@ -419,6 +447,47 @@ set(gca,'xTick',xticks,'xticklabel',{'Aftereffect','Proprioceptive shift'},...
     'xticklabelrotation',45,'ylim',[-5 28]);
 ylabel('degrees');
 
+%% Bar graphs for AE 
+
+figure;set(gcf,'units','centimeters','pos',[5 10 20 7]);
+
+bar_numbers = [1:4];
+faceColors = [.5 .5 1];
+for dayi = 1:2;
+subplot(1,2,dayi)
+dp_Plot_TimeCourse_Bars(bar_numbers, AE_table(AE_table.Day==dayi,:), faceColors)
+
+ax = gca;
+ax.XTick = [1:4];
+ax.XTickLabel = {'AE1','AE2','AE3','AE4'};
+axis([0 5 0 40])
+
+ylabel('Hand angle (บ)');
+end
+
+% print(sprintf('%sE1_AE_over_days%s',figDir,date),'-painters','-dpdf')
+print(sprintf('%sE1_AE_over_days%s',figDir,date),'-painters','-djpeg')
+
+%% Bar graphs for PropShift
+figure;set(gcf,'units','centimeters','pos',[5 10 20 7]);
+bar_numbers = [1:4];
+faceColors = [1 .5 .5];
+for dayi = 1:2;
+subplot(1,2,dayi)
+dp_Plot_TimeCourse_Bars(bar_numbers, Prop_table(Prop_table.Day==dayi,:), faceColors)
+
+ax = gca;
+ax.XTick = [1:4];
+ax.XTickLabel = {'PB1','PB2','PB3','PB4'};
+axis([0 5 -20 10])
+
+ylabel('Proprioceptive shift (บ)');
+end
+
+% print(sprintf('%sE1_PropShift_over_days%s',figDir,date),'-painters','-dpdf')
+print(sprintf('%sE1_CorrelationPlots_%s',figDir,date),'-painters','-djpeg')
+
+
 %% STATS
 
 % fprintf('ttest to see if proprioceptive shift is significant')
@@ -438,6 +507,17 @@ ttest1(day1Matrix.propShiftTheta, 0, 2, 'onesample');
 fprintf('\n\nDay 2 Proprioceptive Shift mean: %.3f \n',nanmean(day2Matrix.propShiftTheta))
 ttest1(day2Matrix.propShiftTheta, 0, 2, 'onesample');
 
+%%
+% ANOVA for AE over blocks
+data_matrix = Prop_table{:,3:6}(Prop_table.Day==1,:);
+dp_prop_print_anova(data_matrix,'Day 1 Prop');
 
+data_matrix = Prop_table{:,3:6}(Prop_table.Day==2,:);
+dp_prop_print_anova(data_matrix,'Day 2 Prop');
 
+data_matrix = AE_table{:,3:6}(AE_table.Day==1,:);
+dp_prop_print_anova(data_matrix,'Day 1 AE',1);
+
+data_matrix = AE_table{:,3:6}(AE_table.Day==2,:);
+dp_prop_print_anova(data_matrix,'Day 2 AE',1);
 

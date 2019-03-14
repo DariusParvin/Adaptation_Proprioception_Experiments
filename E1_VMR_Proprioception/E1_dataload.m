@@ -118,7 +118,7 @@ for s = 1:length(subj) % loop participants
         ii = [1, find(moveidx1+moveidx2)+1];    % indices of when there is new sample
         Nii(k) = length(ii);
         S.hx(k,1:Nii(k)) = S.hand_x(k,ii)*pixel2mm;
-        S.hy(k,1:Nii(k)) = S.hand_y(k,ii)*pixel2mm;
+        S.hy(k,1:Nii(k)) = S.hand_y(k,ii)*pixel2mm + 80; % '+80' to compensate for the start position being at -80
         S.hdist(k,1:Nii(k)) = S.hand_dist(k,ii)*pixel2mm;
         S.trialt(k,1:Nii(k)) = S.trialtime(k,ii);
         
@@ -350,6 +350,6 @@ minutes = floor(mean_elapsed_experiment_time)
 seconds = 60*(mean_elapsed_experiment_time  - floor(mean_elapsed_experiment_time) )
 
 cd(analyzeDir)
-save('AlissaPropEC_trials.mat','T');
-save('AlissaPropEC_movefile.mat','M');
+save('E1_trials.mat','T');
+save('E1_movefile.mat','M');
 toc
