@@ -514,6 +514,7 @@ fprintf('ttest to see if Day2 third vs fourth cycle of aftereffect are different
 ttest1(AE_table.AE4(AE_table.Day==2), AE_table.AE3(AE_table.Day==2), 2, 'paired')
 
 
+
 %%
 % % (Not sure if these are used)
 % % Day1 & Day 2 Aftereffects
@@ -530,26 +531,27 @@ ttest1(AE_table.AE4(AE_table.Day==2), AE_table.AE3(AE_table.Day==2), 2, 'paired'
 % fprintf('\n\nDay 2 Proprioceptive Shift mean: %.3f \n',nanmean(day2Matrix.propShiftTheta))
 % ttest1(day2Matrix.propShiftTheta, 0, 2, 'onesample');
 
-%% Proprioceptive shifts Day 1
+%%
 % ttest for each proprioception shift vs 0
 fprintf('ttest to see if first cycle of proprioceptive shift is significant  ')
 ttest1(Prop_table.propShift1(Prop_table.Day==1), 0, 2, 'onesample')
 
-fprintf('ttest to see if second cycle of proprioceptive shift is significant  ')
+fprintf('ttest to see if first cycle of proprioceptive shift is significant  ')
 ttest1(Prop_table.propShift2(Prop_table.Day==1), 0, 2, 'onesample')
 
-fprintf('ttest to see if third cycle of proprioceptive shift is significant  ')
+fprintf('ttest to see if first cycle of proprioceptive shift is significant  ')
 ttest1(Prop_table.propShift3(Prop_table.Day==1), 0, 2, 'onesample')
 
-fprintf('ttest to see if fourth cycle of proprioceptive shift is significant  ')
+fprintf('ttest to see if first cycle of proprioceptive shift is significant  ')
 ttest1(Prop_table.propShift4(Prop_table.Day==1), 0, 2, 'onesample')
 
 % Block 1 vs 2
-% fprintf('paired ttest first vs second proprioceptive block:\n')
-% ttest1(Prop_table.propShift2(Prop_table.Day==1), Prop_table.propShift1(Prop_table.Day==1), 2, 'paired')
+
+fprintf('paired ttest first vs second proprioceptive block  \n'
+ttest1(Prop_table.propShift1(Prop_table.Day==2), Prop_table.propShift2(Prop_table.Day==2), 2, 'paired')
 
 
-%% Anova Day 1
+%%
 % One Way Repeated measures ANOVA for Proprioceptive shift over blocks
 tbl = Prop_table(Prop_table.Day==1,3:6);
 conds = table(categorical({'pb1' 'pb2' 'pb3' 'pb4'}'),'VariableNames',{'Cond'});
@@ -560,45 +562,9 @@ fprintf('One way repeated measures ANOVA for %s: \n', 'Day 1 Proprioceptive shif
 fprintf('F(%d,%d) = %.3f, p = %.3f \n',ranovatbl.DF(3),ranovatbl.DF(4), ranovatbl.F(3), ranovatbl.pValue(3))
 
 % No need for multiple comparisons because there's no effect of block
-
 % pCond=table2array(ranovatbl('(Intercept):Cond','pValue'));
 % mltcmp=multcompare(rm,'Cond','ComparisonType','bonferroni');
 
-%% Proprioceptive shifts Day 2
-% ttest for each proprioception shift vs 0
-fprintf('ttest to see if first cycle of proprioceptive shift is significant  ')
-ttest1(Prop_table.propShift1(Prop_table.Day==2), 0, 2, 'onesample')
-
-fprintf('ttest to see if second cycle of proprioceptive shift is significant  ')
-ttest1(Prop_table.propShift2(Prop_table.Day==2), 0, 2, 'onesample')
-
-fprintf('ttest to see if third cycle of proprioceptive shift is significant  ')
-ttest1(Prop_table.propShift3(Prop_table.Day==2), 0, 2, 'onesample')
-
-fprintf('ttest to see if fourth cycle of proprioceptive shift is significant  ')
-ttest1(Prop_table.propShift4(Prop_table.Day==2), 0, 2, 'onesample')
-
-% Block 1 vs 2
-% fprintf('paired ttest first vs second proprioceptive block:\n')
-% ttest1(Prop_table.propShift2(Prop_table.Day==1), Prop_table.propShift1(Prop_table.Day==1), 2, 'paired')
-
-
-%% Anova Day 2
-% One Way Repeated measures ANOVA for Proprioceptive shift over blocks
-tbl = Prop_table(Prop_table.Day==2,3:6);
-conds = table(categorical({'pb1' 'pb2' 'pb3' 'pb4'}'),'VariableNames',{'Cond'});
-rm = fitrm(tbl,'propShift1-propShift4~1','WithinDesign',conds);
-[ranovatbl,~,C,~ ]= ranova(rm,'WithinModel','Cond');
-
-fprintf('One way repeated measures ANOVA for %s: \n', 'Day 2 Proprioceptive shift')
-fprintf('F(%d,%d) = %.3f, p = %.3f \n',ranovatbl.DF(3),ranovatbl.DF(4), ranovatbl.F(3), ranovatbl.pValue(3))
-
-% No need for multiple comparisons because there's no effect of block
-
-% pCond=table2array(ranovatbl('(Intercept):Cond','pValue'));
-% mltcmp=multcompare(rm,'Cond','ComparisonType','bonferroni');
-
-%%
 
 data_matrix = Prop_table{:,3:6}(Prop_table.Day==2,:);
 dp_prop_print_anova(data_matrix,'Day 2 Prop');
